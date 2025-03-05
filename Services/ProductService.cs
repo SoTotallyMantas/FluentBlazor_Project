@@ -1,4 +1,5 @@
-﻿using FluentBlazor_Project.Data.Models;
+﻿using FluentBlazor_Project.Data;
+using FluentBlazor_Project.Data.Models;
 using FluentBlazor_Project.Interface;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -7,27 +8,33 @@ namespace FluentBlazor_Project.Services
 {
     public class ProductService : IProductService
     {
-        DbContext _dbContext;
-        public ProductService(DbContext dbContext)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        public ProductService(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
-            _dbContext = dbContext;
+            _contextFactory = contextFactory;
         }
+
+        private ApplicationDbContext CreateContext() => _contextFactory.CreateDbContext();
 
         public async Task<List<Product>> GetProductsAsync()
         {
-            return await  _dbContext.Set<Product>().ToListAsync();
+            using var _dbContext = CreateContext();
+            return await  _dbContext.Products.ToListAsync();
         }
 
         public async Task AddProuctAsync(Product product)
         {
             if (product != null)
             {
-                await _dbContext.Set<Product>().AddAsync(product);    
+                using var _dbContext = CreateContext();
+                await _dbContext.Set<Product>().AddAsync(product);
+                await _dbContext.SaveChangesAsync();
             }
         }
 
         public async Task<Product> RetrieveProductByIndexAsync(Guid guid)
         {
+            using var _dbContext = CreateContext();
             return await _dbContext.Set<Product>().FirstAsync(x => x.Id == guid);
         }
 
@@ -35,6 +42,7 @@ namespace FluentBlazor_Project.Services
         {
             if (category != null)
             {
+                using var _dbContext = CreateContext();
                 return await _dbContext.Set<Product>().Where(p => p.Category == category).ToListAsync();
             }
             else
@@ -45,6 +53,7 @@ namespace FluentBlazor_Project.Services
 
        public async Task<List<Product>> GetProductByFilterAsync(ProductFilterOptions options)
         {
+            using var _dbContext = CreateContext();
             var query = _dbContext.Set<Product>().AsQueryable();
             
             if (options == null)
