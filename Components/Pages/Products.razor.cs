@@ -6,7 +6,7 @@ namespace FluentBlazor_Project.Components.Pages
     public partial class Products
     {
         private IProductService _ProductService { get; set; }
-        private List<Product> products;
+        private List<Product> products = [];
         public Products(IProductService productService)
         {
             _ProductService = productService;
