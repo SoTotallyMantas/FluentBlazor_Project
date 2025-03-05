@@ -3,5 +3,13 @@
 
 <h1>@pageTitle</h1>
 <p>@description</p>
-
+<ul>
+    @foreach (var product in products)
+    {
+        <li>@product.Name</li>
+        <li>@product.Price</li>
+        <li>@product.Category</li>
+        <li>@product.Id</li>
+    }
+</ul>
 
