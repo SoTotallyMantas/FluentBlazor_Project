@@ -28,6 +28,7 @@ namespace FluentBlazor_Project
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IPurchaseService, PurchaseService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 
             builder.Services.AddAuthentication(options =>
                 {
