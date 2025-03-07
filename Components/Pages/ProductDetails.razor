@@ -1,0 +1,30 @@
+﻿@page "/Product/{Category}/{Id:int}"
+@inject NavigationManager Navigation
+
+<h2>@product?.Name</h2>
+<p><strong>Category:</strong> @product?.Category</p>
+<p><strong>Type:</strong> @product?.Type</p>
+<p><strong>Price:</strong> $@product?.Price</p>
+<FluentDivider />
+
+<a href="/Product/@Category">
+    <FluentButton Appearance="Appearance.Accent">Go Back</FluentButton>
+</a>
+
+
+@code {
+    [Parameter] public string Category { get; set; } = string.Empty;
+    [Parameter] public int Id { get; set; }
+
+    private ProductDataTest.ProductTest? product;
+
+    protected override void OnInitialized()
+    {
+        product = ProductDataTest.allProducts.FirstOrDefault(p => p.Id == Id && p.Category == Category);
+
+        if (product == null)
+        {
+            Navigation.NavigateTo("/404");
+        }
+    }
+}

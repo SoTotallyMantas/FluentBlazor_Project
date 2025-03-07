@@ -3,13 +3,18 @@
 
 <h1>@pageTitle</h1>
 <p>@description</p>
-<ul>
-    @foreach (var product in products)
-    {
-        <li>@product.Name</li>
-        <li>@product.Price</li>
-        <li>@product.Category</li>
-        <li>@product.Id</li>
-    }
-</ul>
+<FluentDivider />
 
+@if (filteredProducts.Any())
+{
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; padding: 10px;">
+        @foreach (var product in filteredProducts)
+        {
+            <ProductCard Id="@product.Id" Name="@product.Name" Price="@product.Price" Category="@product.Category" />
+        }
+    </div>
+}
+else
+{
+    <p>No products available in this category.</p>
+}
