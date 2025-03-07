@@ -1,7 +1,15 @@
-﻿<FluentCard Width="200" Height="350">
-    <p>Processors</p>
-    <a href="Product/CPU">
-        <FluentButton Appearance="Appearance.Accent">Open</FluentButton>
+﻿<FluentCard Width="200px" Height="250px">
+    <p>img elementas!</p>
+    <p>@CardTitle</p>
+    <a href="Product/@CardCategory">
+        <FluentButton Appearance="Appearance.Accent" Style="width:100%">Open</FluentButton>
     </a>
 </FluentCard>
 
+@code {
+    [Parameter]
+    public string? CardTitle { get; set; }
+
+    [Parameter]
+    public string? CardCategory { get; set; }
+}

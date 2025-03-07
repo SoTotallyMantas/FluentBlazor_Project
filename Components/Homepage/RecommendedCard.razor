@@ -1,0 +1,15 @@
+﻿<FluentCard Width=@CardWidth Height=@CardHeight>
+    <p>img elementas!</p>
+    <p>@CardTitle</p>
+</FluentCard>
+
+@code {
+    [Parameter]
+    public string? CardTitle { get; set; }
+
+    [Parameter]
+    public string? CardWidth { get; set; }
+
+    [Parameter]
+    public string? CardHeight { get; set; }
+}
