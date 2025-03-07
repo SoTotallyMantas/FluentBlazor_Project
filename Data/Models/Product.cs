@@ -19,6 +19,9 @@ namespace FluentBlazor_Project.Data.Models
        
         public decimal Price { get; set; }
 
-       
+
+        public bool IsDeleted { get; set; } = false;
+
+
     }
 }
