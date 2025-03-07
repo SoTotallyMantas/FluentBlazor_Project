@@ -18,22 +18,22 @@ namespace FluentBlazor_Project.Components.Pages
             List<Product> productSample = new List<Product>
             {
                  new Product
-        {
+            {
             
-            Type = "Electronics",
-            Name = "Laptop X200",
-            Description = "A high-performance laptop with 16GB RAM and 512GB SSD.",
-            Category = "Computers",
-            Price = 1200.00M
-        },
-        new Product
-        {
+                Type = "Electronics",
+                Name = "Laptop X200",
+                Description = "A high-performance laptop with 16GB RAM and 512GB SSD.",
+                Category = "Computers",
+                Price = 1200.00M
+            },
+                new Product
+            {
             
-            Type = "Electronics",
-            Name = "Smartphone A10",
-            Description = "A budget-friendly smartphone with 64GB storage.",
-            Category = "Mobile Phones",
-            Price = 300.00M
+                Type = "Electronics",
+                Name = "Smartphone A10",
+                Description = "A budget-friendly smartphone with 64GB storage.",
+                Category = "Mobile Phones",
+                Price = 300.00M
         },
         new Product
         {
@@ -125,14 +125,14 @@ namespace FluentBlazor_Project.Components.Pages
         protected override void OnParametersSet()
         {
             var productDetails = new Dictionary<string, (string Title, string Description)>
-        {
-            { "CPU", ("Processors", "Details about CPUs") },
-            { "GPU", ("Graphics Cards", "Details about GPUs") },
-            { "PCU", ("Power Block", "Details about Power Supply Units") },
-            { "MB", ("Motherboard", "Details about Motherboards") },
-            { "RAM", ("RAM Memory", "Details about RAM Modules") },
-            { "Storage", ("Storage", "Details about Storage Devices") }
-        };
+            {
+                { "CPU", ("Processors", "Details about CPUs") },
+                { "GPU", ("Graphics Cards", "Details about GPUs") },
+                { "PSU", ("Power Block", "Details about Power Supply Units") },
+                { "MB", ("Motherboard", "Details about Motherboards") },
+                { "RAM", ("RAM Memory", "Details about RAM Modules") },
+                { "Storage", ("Storage", "Details about Storage Devices") }
+            };
 
             if (productDetails.TryGetValue(Category, out var details))
             {

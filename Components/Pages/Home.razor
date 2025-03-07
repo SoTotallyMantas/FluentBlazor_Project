@@ -1,7 +1,27 @@
 ﻿@page "/"
-@using FluentBlazor_Project.Components.Homepage 
 
 <PageTitle>Electromark</PageTitle>
 <h1>Electromark</h1>
-<h2>Categories</h2>
-<CategoriesCard />
+<h2>Recommended</h2>
+<FluentHorizontalScroll Style="@($"width: {Width}; height: {Height};")" Speed="1200" Easing="ScrollEasing.EaseInOut">
+    @for (int i = 0; i <= 5; i++)
+    {
+        <RecommendedCard CardTitle=@title.ElementAt(i).ToString() CardHeight=@Height CardWidth=@Width/>
+    }
+</FluentHorizontalScroll>
+<h3 Style="margin-top:20px">Categories</h3>
+<FluentStack HorizontalGap="30">
+    @for (int i = 0; i <= 5; i++)
+    {
+        <CategoriesCard CardTitle=@title.ElementAt(i).ToString() CardCategory=@categories.ElementAt(i).ToString() />
+    }
+</FluentStack>
+
+
+@code {
+    public List<string> categories = ["PSU", "GPU", "RAM", "CPU", "MB", "Storage"];
+    public List<string> title = ["Power Block", "Graphics Cards", "RAM memory", "Processors", "Motherboard", "Storage"];
+
+    public string Height = "300px";
+    public string Width = "800px";
+}
