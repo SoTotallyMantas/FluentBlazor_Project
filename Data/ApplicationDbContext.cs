@@ -22,13 +22,17 @@ namespace FluentBlazor_Project.Data
         {
             base.OnModelCreating(modelBuilder);
 
-          
+
+            // Global Ignore Soft Deleted Products For Data Recording
+            modelBuilder.Entity<Product>().HasQueryFilter(p => !p.IsDeleted);
+
+
             // User and Purchase (One To Many)
             modelBuilder.Entity<Purchase>()
                 .HasOne(p => p.User)
                 .WithMany(u => u.Purchases)
                 .HasForeignKey(p => p.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Purchase and PurchaseItem ( One To Many)
             modelBuilder.Entity<Purchase>()
@@ -49,7 +53,7 @@ namespace FluentBlazor_Project.Data
                 .HasOne(pi => pi.Product)
                 .WithMany()
                 .HasForeignKey(pi => pi.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
             // User And Favorites ( One To Many )
 
             modelBuilder.Entity<Favorites>()

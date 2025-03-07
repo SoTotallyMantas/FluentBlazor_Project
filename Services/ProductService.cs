@@ -32,6 +32,25 @@ namespace FluentBlazor_Project.Services
             }
         }
 
+        public async Task ToggleSoftDeletionProductAsync(Guid productId)
+        {
+            using var _dbContext = CreateContext();
+
+            var product = await _dbContext.Products
+                          .IgnoreQueryFilters()
+                          .FirstOrDefaultAsync(p => p.Id == productId);
+
+            if (product != null)
+            {
+
+                throw new InvalidOperationException("Product Not found.");
+            }
+            // Toggle Flag
+            product.IsDeleted = !product.IsDeleted;
+
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task<Product> RetrieveProductByIndexAsync(Guid guid)
         {
             using var _dbContext = CreateContext();
