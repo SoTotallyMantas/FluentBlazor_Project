@@ -1,16 +1,54 @@
 ﻿@page "/Product/{Category}/{Id:int}"
 @inject NavigationManager Navigation
 
-<h2>@product?.Name</h2>
-<p><strong>Category:</strong> @product?.Category</p>
-<p><strong>Type:</strong> @product?.Type</p>
-<p><strong>Price:</strong> $@product?.Price</p>
-<FluentDivider />
+<div style="margin: 0 auto; padding: 20px;">
+    <nav style="margin-bottom: 20px;">
+        <a href="/" style="text-decoration: none; color: #666;">Home</a> >
+        <a href="/Product/@Category" style="text-decoration: none; color: #666;">@Category</a> >
+        <span style="color: #000;">@product?.Name</span>
+    </nav>
 
-<a href="/Product/@Category">
-    <FluentButton Appearance="Appearance.Accent">Go Back</FluentButton>
-</a>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start;">
+        <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #f5f5f5; display: flex; justify-content: center; align-items: center; height: 400px;">
+            <p style="color: #666;">[Image Placeholder for @product?.Name]</p>
+        </div>
 
+        <div>
+            <h1 style="font-size: 2rem; margin-bottom: 15px; font-weight: 600;">@product?.Name</h1>
+            <p><strong>Category:</strong> @product?.Category</p>
+            <p><strong>Type:</strong> @product?.Type</p>
+            <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 15px;">$@product?.Price</p>
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size24.Cart())" Style="width: 75%">Add to Cart</FluentButton>
+            </div>
+            <FluentDivider />
+
+            <FluentTabs style="margin-top: 20px;">
+                <FluentTab id="descriptionTab" label="Description">
+                    @if (product != null)
+                    {
+                        var parts = product.Description.Split(new string[] { "<hr>" }, StringSplitOptions.None);
+                        <p>@(new MarkupString(parts[0]))</p>
+                    }
+                </FluentTab>
+                <FluentTab id="specificationTab" label="Specifications">
+                    @if (product != null)
+                    {
+                        var parts = product.Description.Split(new string[] { "<hr>" }, StringSplitOptions.None);
+                        if (parts.Length > 1)
+                        {
+                            <p>@(new MarkupString(parts[1]))</p>
+                        }
+                    }
+                </FluentTab>
+            </FluentTabs>
+
+            <a href="/Product/@Category" style="text-decoration: none; margin-top: 20px;">
+                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size24.ArrowCircleLeft())">Back to @Category</FluentButton>
+            </a>
+        </div>
+    </div>
+</div>
 
 @code {
     [Parameter] public string Category { get; set; } = string.Empty;
