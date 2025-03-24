@@ -1,8 +1,16 @@
-﻿namespace FluentBlazor_Project.Components.Products
+﻿using FluentBlazor_Project.Data.Models;
+using FluentBlazor_Project.Interface;
+using FluentBlazor_Project.Services;
+
+namespace FluentBlazor_Project.Components.Products
 {
     public class ProductDataTest
     {
+        private IProductService _ProductService { get; set; } 
 
+        public ProductDataTest(IProductService productService) {
+            _ProductService = productService;
+        }
         public static readonly Dictionary<string, (string Title, string Description)> productDetails = new()
         {
             { "CPU", ("Processors", "Details about CPUs") },
@@ -13,11 +21,11 @@
             { "Storage", ("Storage", "Details about Storage Devices") }
         };
 
-        public static readonly List<ProductTest> allProducts = new()
+        public static readonly List<Product> allProducts = new()
         {
-            new ProductTest
+            new Product
             {
-                Id = 1,
+                
                 Type = "Processors",
                 Name = "Intel Core i7",
                 Category = "CPU",
@@ -38,9 +46,9 @@
                     "</ul>"
             },
 
-            new ProductTest
+            new Product
             {
-                Id = 2,
+                
                 Type = "Processors",
                 Name = "AMD Ryzen 5",
                 Category = "CPU",
@@ -61,9 +69,9 @@
                     "</ul>"
             },
 
-            new ProductTest
+            new Product
             {
-                Id = 3,
+                
                 Type = "Graphics Cards",
                 Name = "NVIDIA RTX 4070",
                 Category = "GPU",
@@ -83,9 +91,9 @@
                     "</ul>"
             },
 
-            new ProductTest
+            new Product
             {
-                Id = 4,
+                
                 Type = "Graphics Cards",
                 Name = "AMD RX 6800",
                 Category = "GPU",
@@ -105,9 +113,8 @@
                     "</ul>"
             },
 
-            new ProductTest
+            new Product
             {
-                Id = 5,
                 Type = "RAM Memory",
                 Name = "Corsair 16GB DDR4",
                 Category = "RAM",
@@ -126,9 +133,9 @@
                     "</ul>"
             },
 
-            new ProductTest
+            new Product
             {
-                Id = 6,
+      
                 Type = "RAM Memory",
                 Name = "G.Skill 8GB DDR4",
                 Category = "RAM",
@@ -147,9 +154,9 @@
                     "</ul>"
             },
 
-            new ProductTest
+            new Product
             {
-                Id = 7,
+   
                 Type = "Power Block",
                 Name = "Gigabyte 450W",
                 Category = "PSU",
@@ -168,9 +175,9 @@
                     "</ul>"
             },
 
-            new ProductTest
+            new Product
             {
-                Id = 8,
+
                 Type = "Power Block",
                 Name = "CHIEFTEC ECO 500W",
                 Category = "PSU",
@@ -189,9 +196,9 @@
                     "</ul>"
             },
 
-            new ProductTest
+            new Product
             {
-                Id = 9,
+  
                 Type = "MotherBoard",
                 Name = "GIGABYTE Intel Z790",
                 Category = "MB",
@@ -210,9 +217,9 @@
                     "</ul>"
             },
 
-            new ProductTest
+            new Product
             {
-                Id = 10,
+
                 Type = "MotherBoard",
                 Name = "ASUS AMD B650",
                 Category = "MB",
@@ -231,9 +238,9 @@
                     "</ul>"
             },
 
-            new ProductTest
+            new Product
             {
-                Id = 11,
+
                 Type = "Storage",
                 Name = "ADATA Ultimate SU650 512GB",
                 Category = "Storage",
@@ -255,9 +262,9 @@
                     "</ul>"
             },
 
-            new ProductTest
+            new Product
             {
-                Id = 12,
+  
                 Type = "Storage",
                 Name = "Samsung 970 EVO Plus 1TB",
                 Category = "Storage",
@@ -278,14 +285,15 @@
                     "</ul>"
             }
         };
-        public class ProductTest
+
+        public async Task AddSampleToDatabase()
         {
-            public int Id { get; set; }
-            public string Type { get; set; } = string.Empty;
-            public string Name { get; set; } = string.Empty;
-            public string Category { get; set; } = string.Empty;
-            public decimal Price { get; set; }
-            public string Description { get; set; } = string.Empty;
+
+            foreach (Product product in allProducts)
+            {
+               await _ProductService.AddProuctAsync(product);
+            }
         }
+
     }
 }

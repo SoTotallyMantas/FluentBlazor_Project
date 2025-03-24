@@ -3,19 +3,20 @@ using FluentBlazor_Project.Data.Models;
 using FluentBlazor_Project.Interface;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using System.Data;
 using static FluentBlazor_Project.Components.Products.ProductDataTest;
 
 namespace FluentBlazor_Project.Components.Pages
 {
     public partial class Products
     {
-        /*        private IProductService _ProductService { get; set; }
+               private IProductService _ProductService { get; set; }
                 private List<Product> products = [];
                 public Products(IProductService productService)
                 {
                     _ProductService = productService;
                 }
-
+        /* 
                 public void addSampleProducts()
                 {
                     List<Product> productSample = new List<Product>
@@ -123,11 +124,14 @@ namespace FluentBlazor_Project.Components.Pages
 
         private string pageTitle = string.Empty;
         private string description = string.Empty;
-        private List<ProductTest> filteredProducts = new();
+        private List<Product> filteredProducts = new();
 
-        protected override void OnParametersSet()
+        protected override async Task OnParametersSetAsync()
         {
-            filteredProducts = ProductDataTest.allProducts.Where(p => p.Category == Category).ToList();
+            
+            filteredProducts = await _ProductService.GetProductByCategoryAsync(Category);
+            
+            
 
             if (ProductDataTest.productDetails.TryGetValue(Category, out var details))
             {
@@ -139,12 +143,8 @@ namespace FluentBlazor_Project.Components.Pages
                 Navigation.NavigateTo("/404");
             }
         }
-
-        /*        protected override async Task OnInitializedAsync()
-                {
-                    products = await _ProductService.GetProductsAsync();
-
-                }*/
+        ProductDataTest datatest; 
+        
 
     }
 }

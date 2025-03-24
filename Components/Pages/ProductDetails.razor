@@ -1,6 +1,8 @@
-﻿@page "/Product/{Category}/{Id:int}"
+﻿@page "/Product/{Category}/{Id}"
+@using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.Interface
 @inject NavigationManager Navigation
-
+@inject IProductService _productService
 <div style="margin: 0 auto; padding: 20px;">
     <nav style="margin-bottom: 20px;">
         <a href="/" style="text-decoration: none; color: #666;">Home</a> >
@@ -52,17 +54,24 @@
 
 @code {
     [Parameter] public string Category { get; set; } = string.Empty;
-    [Parameter] public int Id { get; set; }
+    [Parameter] public string Id { get; set; } = string.Empty;
+    
 
-    private ProductDataTest.ProductTest? product;
 
-    protected override void OnInitialized()
+    private Product product;
+
+    protected override async Task OnInitializedAsync()
     {
-        product = ProductDataTest.allProducts.FirstOrDefault(p => p.Id == Id && p.Category == Category);
-
+       
+        if(Guid.TryParse(Id,out var ParsedId))
+        {
+            
+            product = await _productService.RetrieveProductByIndexAsync(ParsedId);
+        }
         if (product == null)
         {
-            Navigation.NavigateTo("/404");
+            
+           Navigation.NavigateTo("/404");
         }
     }
 }
