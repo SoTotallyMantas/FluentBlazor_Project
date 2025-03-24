@@ -123,6 +123,9 @@ namespace FluentBlazor_Project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -334,7 +337,7 @@ namespace FluentBlazor_Project.Migrations
                     b.HasOne("FluentBlazor_Project.Data.ApplicationUser", "User")
                         .WithMany("Purchases")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("User");
                 });
@@ -344,7 +347,7 @@ namespace FluentBlazor_Project.Migrations
                     b.HasOne("FluentBlazor_Project.Data.Models.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("FluentBlazor_Project.Data.Models.Purchase", "Purchase")

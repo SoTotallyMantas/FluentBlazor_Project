@@ -25,7 +25,8 @@ namespace FluentBlazor_Project.Data
 
             // Global Ignore Soft Deleted Products For Data Recording
             modelBuilder.Entity<Product>().HasQueryFilter(p => !p.IsDeleted);
-
+            // Global hide favorites if product is soft-deleted
+            modelBuilder.Entity<Favorites>().HasQueryFilter(p => !p.Product.IsDeleted);
 
             // User and Purchase (One To Many)
             modelBuilder.Entity<Purchase>()
@@ -47,7 +48,7 @@ namespace FluentBlazor_Project.Data
 
             modelBuilder.Entity<Favorites>()
                 .HasKey(f => new { f.UserId, f.ProductId });
-
+            // DO NOT FORGET ON QUERIES NOT GLOBALLY IGNORE FILTER For DELETED Purchase Products
             // PurchaseItem and Product (Many to One)
             modelBuilder.Entity<PurchaseItem>()
                 .HasOne(pi => pi.Product)
