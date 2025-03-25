@@ -1,0 +1,34 @@
+﻿@page "/editCategory/{Id}"
+@inject NavigationManager Navigation
+@using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.Interface
+@inject ICategoryService _categoryService
+
+@if (category == null)
+{
+    <p>Loading product...</p>
+}
+else
+{
+    <h2>Product @category. Editing</h2>
+    <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="category.CategoryName" Label="Change name:" Required/>
+    <FluentTextArea Name="type" Rows="1" Cols="60" @bind-Value="category.Title" Label="Change title:" />
+    <FluentTextArea Name="description" Rows="1" Cols="60" @bind-Value="category.Description" Label="Change description:" />
+}
+
+@code {
+    [Parameter] public string Id { get; set; }
+
+    private List <Category> category;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Guid.TryParse(Id, out var parsedId);
+        category = await _categoryService.GetCategoriesAsync();
+
+        if (category == null)
+        {
+            Navigation.NavigateTo("/404");
+        }
+    }
+}

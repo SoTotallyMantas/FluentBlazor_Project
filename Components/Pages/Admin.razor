@@ -1,64 +1,81 @@
 ﻿@page "/admin"
 @inject NavigationManager Navigation
 @inject IProductService _productService
+@inject ICategoryService _categoryService
 @using FluentBlazor_Project.Data.Models
 @using FluentBlazor_Project.Interface
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.FluentUI.AspNetCore.Components.DataGrid
 
+@rendermode InteractiveServer
+
 <h2>Admin</h2>
+<FluentTabs style="margin-top: 5px;">
+    <FluentTab id="productTab" label="Product">
+        <FluentDataGrid Items="@products.AsQueryable()" Pagination="@productPagination" MultiLine="true">
+            <PropertyColumn Property="@(p => p.Name)" Title="Product Name" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Type)" Title="Type" Sortable="true" />
 
-<FluentDataGrid TGridItem="Person" ItemsProvider="LoadPeopleData" Pagination="pagination">
-    <PropertyColumn Property="@(p => p.PersonId)" Sortable="true" />
-    <PropertyColumn Property="@(p => p.Name)" Sortable="true" />
-    <PropertyColumn Property="@(p => p.BirthDate)" Format="yyyy-MM-dd" Sortable="true" />
-</FluentDataGrid>
+            <TemplateColumn Title="Actions">
+                <FluentButton Style="width: 60px; height: 40px;"
+                Appearance="Appearance.Accent"
+                IconEnd="@(new Icons.Regular.Size20.Pen())"
+                Title="Edit"
+                @onclick="@(() => EditProduct(context.Id))" />
 
-<FluentPaginator State="@pagination" />
+                <FluentButton Style="width: 60px; height: 40px;"
+                Appearance="Appearance.Accent"
+                IconEnd="@(new Icons.Regular.Size20.BinRecycle())"
+                Title="Delete" />
+            </TemplateColumn>
+        </FluentDataGrid>
+        <FluentPaginator State="@productPagination" />
+    </FluentTab>
+    <FluentTab id="categoryTab" label="Category">
+        <FluentDataGrid Items="@categories.AsQueryable()" Pagination="@categoryPagination" MultiLine="true">
+            <PropertyColumn Property="@(c => c.CategoryName)" Title="Name" Sortable="true" />
+            <PropertyColumn Property="@(c => c.Title)" Title="Title" Sortable="true" />
+            <PropertyColumn Property="@(c => c.Description)" Title="Description" Sortable="true" />
+            <TemplateColumn Title="Actions">
+                <FluentButton Style="width: 60px; height: 40px;"
+                Appearance="Appearance.Accent"
+                IconEnd="@(new Icons.Regular.Size20.Pen())"
+                Title="Edit" 
+                @onclick="@(() => EditCategory(context.Id))" />/>
+
+                <FluentButton Style="width: 60px; height: 40px;"
+                Appearance="Appearance.Accent"
+                IconEnd="@(new Icons.Regular.Size20.BinRecycle())"
+                Title="Delete" />
+            </TemplateColumn>
+        </FluentDataGrid>
+        <FluentPaginator State="@categoryPagination" />
+    </FluentTab>
+</FluentTabs>
 
 @code {
-    private PaginationState pagination = new PaginationState() { ItemsPerPage = 2 };
+    PaginationState productPagination = new PaginationState() { ItemsPerPage = 12 };
+    PaginationState categoryPagination = new PaginationState() { ItemsPerPage = 12 };
 
-    record Person(int PersonId, string Name, DateOnly BirthDate);
+    private List<Product> products = new();
+    private List<Category> categories = new();
 
-    IQueryable<Person> people = new[]
-        {
-        new Person(10895, "Jean Martin", new DateOnly(1985, 3, 16)),
-        new Person(10944, "António Langa", new DateOnly(1991, 12, 1)),
-        new Person(11203, "Julie Smith", new DateOnly(1958, 10, 10)),
-        new Person(11205, "Nur Sari", new DateOnly(1922, 4, 27)),
-        new Person(11898, "Jose Hernandez", new DateOnly(2011, 5, 3)),
-        new Person(12130, "Kenji Sato", new DateOnly(2004, 1, 9)),
-        }.AsQueryable();
-
-    private async Task<GridItemsProviderResult<Person>> LoadPeopleData(GridItemsProviderRequest<Person> request)
+    protected override async Task OnInitializedAsync()
     {
-        var query = people;
-
-        // Sorting (basic fallback)
-        if (request.SortByColumn != null)
-        {
-            var sortProp = request.SortByColumn.Property.Name;
-            var sortDirection = request.SortDescending ? "descending" : "ascending";
-
-            // You need this for dynamic sort
-            query = query.OrderBy($"{sortProp} {sortDirection}");
-        }
-
-        // Pagination
-        var totalCount = query.Count();
-        var items = query
-            .Skip(request.StartIndex)
-            .Take(request.Count ?? 10)
-            .ToList();
-
-
-        return new GridItemsProviderResult<Person>
-            {
-                Items = items,
-                TotalItemCount = totalCount
-            };
+        products = await _productService.GetProductsAsync();
+        categories = await _categoryService.GetCategoriesAsync();
     }
 
     private RenderFragment template = @<span />;
+
+    private void EditProduct(Guid productId)
+    {
+        Navigation.NavigateTo($"/editProduct/{productId}");
+    }
+
+    private void EditCategory(Guid categoryId)
+    {
+        Navigation.NavigateTo($"/editCategory/{categoryId}");
+    }
 }
+

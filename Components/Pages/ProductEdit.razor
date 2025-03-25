@@ -1,0 +1,108 @@
+﻿@page "/editProduct/{Id}"
+@inject NavigationManager Navigation
+@using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.Interface
+@inject IProductService _productService
+
+@rendermode InteractiveServer
+
+@if (product == null)
+{
+    <p>Loading product...</p>
+}
+else
+{
+    <h2>Product @product.Name Editing</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px;">
+        <div>
+            <FluentTextArea Name="type" Rows="1" Cols="60" @bind-Value="product.Type" Label="Change type:" Required />
+            <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="product.Name" Label="Change name:" Required />
+            <FluentTextArea Name="category" Rows="1" Cols="60" @bind-Value="product.Category" Label="Change category:" Required />
+            <FluentTextArea Name="price" Rows="1" Cols="60" @bind-Value="@priceString" Label="Change price:" Required />
+        </div>
+        <div>
+            <FluentInputFile Id="file-uploader"
+                             Mode="InputFileMode.Stream"
+                             Accept="image/*"
+                             @bind-ProgressPercent="@ProgressPercent"
+                             OnCompleted="@OnCompletedAsync"
+                             Style="height: 300px;">
+                <ChildContent>
+                    <label for="file-uploader">
+                        <FluentIcon Value="@(new Icons.Regular.Size24.ArrowUpload())" />
+                    </label>
+                    <div>
+                        Drag files here to upload product image
+                    </div>
+                    @if (!string.IsNullOrEmpty(imageBase64))
+                    {
+                        <h4>Uploaded File:</h4>
+                        <img src="@imageBase64" alt="Uploaded product image" style="max-width: 20%; height: auto;" />
+                        <ul>
+                            @foreach (var file in Files)
+                            {
+                                <li>
+                                    <b>@file.Name</b>
+                                    @if (!string.IsNullOrEmpty(file.ErrorMessage))
+                                    {
+                                        <span> - Error: @file.ErrorMessage</span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                </ChildContent>
+            </FluentInputFile>
+        </div>
+    </div>
+    <FluentTextArea Name="description" Rows="18" Cols="110" @bind-Value="product.Description" Label="Change description" Style="margin-right: 20px"/>
+
+    <FluentButton Appearance="Appearance.Accent" Style="width: 75px">Save</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Style="width: 75px">Cancel</FluentButton>
+}
+
+@code {
+    [Parameter] public string Id { get; set; }
+
+    private Product? product;
+    private string priceString;
+    private string? imageBase64;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Guid.TryParse(Id, out var parsedId);
+        product = await _productService.RetrieveProductByIndexAsync(parsedId);
+
+        if (product == null)
+        {
+            Navigation.NavigateTo("/404");
+        }
+        else
+        {
+            priceString = product.Price.ToString();
+        }
+    }
+
+    private int ProgressPercent = 0;
+    private FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
+
+    private async Task OnCompletedAsync(IEnumerable<FluentInputFileEventArgs> files)
+    {
+        Files = files.ToArray();
+        ProgressPercent = 0;
+
+        if (Files.Any() && product != null)
+        {
+            var file = Files.First();
+            if (file.Stream != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await file.Stream.CopyToAsync(memoryStream);
+                    var imageBytes = memoryStream.ToArray();
+                    imageBase64 = $"data:{file.ContentType};base64,{Convert.ToBase64String(imageBytes)}";
+                }
+            }
+        }
+    }
+}
