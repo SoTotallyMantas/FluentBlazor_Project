@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -7,14 +8,21 @@
     <base href="/" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["FluentBlazor_Project.styles.css"]" />
+
     <ImportMap />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <HeadOutlet />
+    <HeadOutlet @rendermode="RenderModeForPage" />
 </head>
 
 <body>
-    <Routes />
+    <Routes @rendermode="RenderModeForPage" />
     <script src="_framework/blazor.web.js"></script>
 </body>
 
 </html>
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    private IComponentRenderMode? RenderModeForPage => HttpContext.Request.Path.StartsWithSegments("/Account") ? null : new InteractiveServerRenderMode(prerender: false);
+}
