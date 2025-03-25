@@ -22,6 +22,12 @@ namespace FluentBlazor_Project.Services
                 .ToListAsync();
         }
 
+        public async Task<Category> GetByIdAsync(Guid Id)
+        {
+            using var _dbContext = CreateContext();
+            return await _dbContext.Category.FirstAsync(c => c.Id == Id);
+        }
+
         public async Task DeleteCategoryAsync(string categoryName)
         {
             using var _dbContext = CreateContext();
