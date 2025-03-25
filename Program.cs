@@ -44,7 +44,7 @@ namespace FluentBlazor_Project
             builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            builder.Services.AddQuickGridEntityFrameworkAdapter();
+            builder.Services.AddDataGridEntityFrameworkAdapter();
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

@@ -1,0 +1,64 @@
+﻿@page "/admin"
+@inject NavigationManager Navigation
+@inject IProductService _productService
+@using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.Interface
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.FluentUI.AspNetCore.Components.DataGrid
+
+<h2>Admin</h2>
+
+<FluentDataGrid TGridItem="Person" ItemsProvider="LoadPeopleData" Pagination="pagination">
+    <PropertyColumn Property="@(p => p.PersonId)" Sortable="true" />
+    <PropertyColumn Property="@(p => p.Name)" Sortable="true" />
+    <PropertyColumn Property="@(p => p.BirthDate)" Format="yyyy-MM-dd" Sortable="true" />
+</FluentDataGrid>
+
+<FluentPaginator State="@pagination" />
+
+@code {
+    private PaginationState pagination = new PaginationState() { ItemsPerPage = 2 };
+
+    record Person(int PersonId, string Name, DateOnly BirthDate);
+
+    IQueryable<Person> people = new[]
+        {
+        new Person(10895, "Jean Martin", new DateOnly(1985, 3, 16)),
+        new Person(10944, "António Langa", new DateOnly(1991, 12, 1)),
+        new Person(11203, "Julie Smith", new DateOnly(1958, 10, 10)),
+        new Person(11205, "Nur Sari", new DateOnly(1922, 4, 27)),
+        new Person(11898, "Jose Hernandez", new DateOnly(2011, 5, 3)),
+        new Person(12130, "Kenji Sato", new DateOnly(2004, 1, 9)),
+        }.AsQueryable();
+
+    private async Task<GridItemsProviderResult<Person>> LoadPeopleData(GridItemsProviderRequest<Person> request)
+    {
+        var query = people;
+
+        // Sorting (basic fallback)
+        if (request.SortByColumn != null)
+        {
+            var sortProp = request.SortByColumn.Property.Name;
+            var sortDirection = request.SortDescending ? "descending" : "ascending";
+
+            // You need this for dynamic sort
+            query = query.OrderBy($"{sortProp} {sortDirection}");
+        }
+
+        // Pagination
+        var totalCount = query.Count();
+        var items = query
+            .Skip(request.StartIndex)
+            .Take(request.Count ?? 10)
+            .ToList();
+
+
+        return new GridItemsProviderResult<Person>
+            {
+                Items = items,
+                TotalItemCount = totalCount
+            };
+    }
+
+    private RenderFragment template = @<span />;
+}
