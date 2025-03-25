@@ -40,13 +40,20 @@ namespace FluentBlazor_Project.Services
                           .IgnoreQueryFilters()
                           .FirstOrDefaultAsync(p => p.Id == productId);
 
-            if (product != null)
+            if (product is null)
             {
 
                 throw new InvalidOperationException("Product Not found.");
             }
             // Toggle Flag
             product.IsDeleted = !product.IsDeleted;
+
+            if (product.IsDeleted)
+            {
+                var relatedCartItems = _dbContext.CartItems
+                    .Where(ci => ci.ProductId == productId);
+                _dbContext.CartItems.RemoveRange(relatedCartItems);
+            }
 
             await _dbContext.SaveChangesAsync();
         }

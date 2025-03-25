@@ -29,7 +29,8 @@ namespace FluentBlazor_Project
             builder.Services.AddScoped<IPurchaseService, PurchaseService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IFavoriteService, FavoriteService>();
-
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<ICartService,CartService>();
             builder.Services.AddAuthentication(options =>
                 {
                     options.DefaultScheme = IdentityConstants.ApplicationScheme;

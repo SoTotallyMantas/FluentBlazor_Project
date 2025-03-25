@@ -13,9 +13,10 @@ namespace FluentBlazor_Project.Data
 
         public DbSet<Product> Products { get; set; }
         public DbSet<Purchase> Purchases { get; set; }
-       public DbSet<PurchaseItem> PurchaseItems { get; set; }
-
-
+        public DbSet<PurchaseItem> PurchaseItems { get; set; }
+        public DbSet<Category> Category { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Favorites> Favorites { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -28,13 +29,35 @@ namespace FluentBlazor_Project.Data
             // Global hide favorites if product is soft-deleted
             modelBuilder.Entity<Favorites>().HasQueryFilter(p => !p.Product.IsDeleted);
 
+            // Set Category Name as Unique to prevent duplicates
+            modelBuilder.Entity<Category>()
+                .HasIndex(c => c.CategoryName)
+                .IsUnique();
+            // User and Cart ( One To One ) 
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne( u => u.Cart)
+                .WithOne( c => c.User)
+                .HasForeignKey<Cart>(c=> c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
             // User and Purchase (One To Many)
             modelBuilder.Entity<Purchase>()
                 .HasOne(p => p.User)
                 .WithMany(u => u.Purchases)
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
-
+            // Cart and CartItems ( One To Many ) 
+            modelBuilder.Entity<Cart>()
+                .HasMany(c => c.CartItems)
+                .WithOne(ci => ci.Cart)
+                .HasForeignKey(ci => ci.CartId)
+                .OnDelete(DeleteBehavior.Cascade);
+            // CartItems and Product ( Many to One) 
+            modelBuilder.Entity<CartItem>()
+                .HasOne(ci => ci.Product)
+                .WithMany()
+                .HasForeignKey(ci => ci.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
             // Purchase and PurchaseItem ( One To Many)
             modelBuilder.Entity<Purchase>()
                 .HasMany(p => p.PurchaseItems)
@@ -46,8 +69,8 @@ namespace FluentBlazor_Project.Data
             modelBuilder.Entity<PurchaseItem>()
               .HasKey(pi => new { pi.PurchaseId, pi.ProductId });
 
-            modelBuilder.Entity<Favorites>()
-                .HasKey(f => new { f.UserId, f.ProductId });
+        
+
             // DO NOT FORGET ON QUERIES NOT GLOBALLY IGNORE FILTER For DELETED Purchase Products
             // PurchaseItem and Product (Many to One)
             modelBuilder.Entity<PurchaseItem>()
@@ -76,6 +99,15 @@ namespace FluentBlazor_Project.Data
                 .Property(p => p.Price)
                 .HasPrecision(18, 2);
             // Generate Key in Database
+            modelBuilder.Entity<Category>()
+                .Property(c => c.Id)
+                .ValueGeneratedOnAdd();
+            modelBuilder.Entity<Cart>()
+                .Property(c => c.Id)
+                .ValueGeneratedOnAdd();
+            modelBuilder.Entity<CartItem>()
+                .Property(ci => ci.Id)
+                .ValueGeneratedOnAdd();
             modelBuilder.Entity<Product>()
                .Property(p => p.Id)
                .ValueGeneratedOnAdd();
