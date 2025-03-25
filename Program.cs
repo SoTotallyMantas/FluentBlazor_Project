@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FluentUI.AspNetCore.Components;
-
+using Microsoft.AspNetCore.Authentication;
 namespace FluentBlazor_Project
 {
     public class Program
@@ -37,6 +37,13 @@ namespace FluentBlazor_Project
                     options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
                 })
                 .AddIdentityCookies();
+                 builder.Services.AddAuthentication()
+                .AddGoogle(googleOptions =>
+                {
+                    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+                    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+                });
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                 throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
