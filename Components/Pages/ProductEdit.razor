@@ -1,9 +1,10 @@
 ﻿@page "/editProduct/{Id}"
 @inject NavigationManager Navigation
 @using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.Data.Models.ImageTables
 @using FluentBlazor_Project.Interface
 @inject IProductService _productService
-
+@using FluentBlazor_Project.HelperFunctions
 @rendermode InteractiveServer
 
 @if (product == null)
@@ -22,11 +23,11 @@ else
         </div>
         <div>
             <FluentInputFile Id="file-uploader"
-                             Mode="InputFileMode.Stream"
-                             Accept="image/*"
-                             @bind-ProgressPercent="@ProgressPercent"
-                             OnCompleted="@OnCompletedAsync"
-                             Style="height: 300px;">
+            Mode="InputFileMode.Stream"
+            Accept="image/*"
+            @bind-ProgressPercent="@ProgressPercent"
+            OnCompleted="@OnCompletedAsync"
+            Style="height: 300px;">
                 <ChildContent>
                     <label for="file-uploader">
                         <FluentIcon Value="@(new Icons.Regular.Size24.ArrowUpload())" />
@@ -57,7 +58,7 @@ else
     </div>
     <FluentTextArea Name="description" Rows="18" Cols="110" @bind-Value="product.Description" Label="Change description" Style="margin-right: 20px"/>
 
-    <FluentButton Appearance="Appearance.Accent" Style="width: 75px">Save</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" OnClick="@SaveChanges">Save</FluentButton>
     <FluentButton Appearance="Appearance.Accent" Style="width: 75px">Cancel</FluentButton>
 }
 
@@ -67,7 +68,7 @@ else
     private Product? product;
     private string priceString;
     private string? imageBase64;
-
+    private FileHelper imageUpload = new FileHelper();
     protected override async Task OnInitializedAsync()
     {
         Guid.TryParse(Id, out var parsedId);
@@ -84,11 +85,11 @@ else
     }
 
     private int ProgressPercent = 0;
-    private FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
+    private List<FluentInputFileEventArgs> Files = [];
 
     private async Task OnCompletedAsync(IEnumerable<FluentInputFileEventArgs> files)
     {
-        Files = files.ToArray();
+        Files = files.ToList();
         ProgressPercent = 0;
 
         if (Files.Any() && product != null)
@@ -104,5 +105,11 @@ else
                 }
             }
         }
+    }
+
+    public async Task SaveChanges()
+    {
+       await imageUpload.SaveImageStreamToFile(Files);
+
     }
 }

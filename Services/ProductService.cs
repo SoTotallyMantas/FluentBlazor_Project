@@ -1,5 +1,7 @@
 ﻿using FluentBlazor_Project.Data;
 using FluentBlazor_Project.Data.Models;
+using FluentBlazor_Project.Data.Models.ImageTables;
+using FluentBlazor_Project.HelperFunctions;
 using FluentBlazor_Project.Interface;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -19,16 +21,121 @@ namespace FluentBlazor_Project.Services
         public async Task<List<Product>> GetProductsAsync()
         {
             using var _dbContext = CreateContext();
-            return await  _dbContext.Products.ToListAsync();
+            return await  _dbContext.Products
+                .Include(p => p.Images).
+                ToListAsync();
         }
 
-        public async Task AddProuctAsync(Product product)
+        public async Task AddProductAsync(Product product)
         {
-            if (product != null)
-            {
+            ProductValidationHelper.EnsureValidProduct(product);
+            ProductValidationHelper.EnsureSingleThumbnail(product.Images);
+
                 using var _dbContext = CreateContext();
+                
                 await _dbContext.Set<Product>().AddAsync(product);
                 await _dbContext.SaveChangesAsync();
+               
+                    foreach (var image in product.Images)
+                    {
+                        image.ProductId = product.Id;
+                    }
+                    _dbContext.ProductImages.AddRange(product.Images);
+                    await _dbContext.SaveChangesAsync();
+
+        }
+        public async Task EditProductAsync(Product updateProduct)
+        {
+            ProductValidationHelper.EnsureValidProduct(updateProduct);
+            ProductValidationHelper.EnsureSingleThumbnail(updateProduct.Images);
+            ProductValidationHelper.EnsureValidImages(updateProduct.Images);
+            using var _dbContext = CreateContext();
+
+            var existingProduct = await _dbContext.Products
+                .Include(p=>p.Images)
+                .FirstOrDefaultAsync(p=> p.Id == updateProduct.Id);
+
+            ProductValidationHelper.EnsureValidProduct(existingProduct);
+
+            bool isModified = false;
+            
+            if(DifferenceCheckHelper.UpdateIfDifferent(existingProduct.Name, updateProduct.Name))
+            {
+                existingProduct.Name = updateProduct.Name;
+                isModified = true;
+            }
+
+            if (DifferenceCheckHelper.UpdateIfDifferent(existingProduct.Type, updateProduct.Type))
+            {
+                existingProduct.Type = updateProduct.Type;
+                isModified = true;
+            }
+            if (DifferenceCheckHelper.UpdateIfDifferent(existingProduct.Category, updateProduct.Category))
+            {
+                existingProduct.Category = updateProduct.Category;
+                isModified = true;
+            }
+            if (DifferenceCheckHelper.UpdateIfDifferent(existingProduct.Description, updateProduct.Description))
+            {
+                existingProduct.Description = updateProduct.Description;
+                isModified = true;
+            }
+            if (DifferenceCheckHelper.UpdateIfDifferent(existingProduct.Price, updateProduct.Price))
+            {
+                existingProduct.Price = updateProduct.Price;
+                isModified = true;
+            }
+
+            var newImages = updateProduct.Images.Where(img => img.ImageId == Guid.Empty).ToList();
+            var existingUpdatedImages = updateProduct.Images.Where(img => img.ImageId != Guid.Empty).ToList();
+            
+            var existingIds = existingUpdatedImages.Select(img => img.ImageId).ToHashSet();
+            // Database Images that are not in the updated list of images are sent into ImagesToRemove List
+            var imagesToRemove = existingProduct.Images
+                .Where(img => !existingIds.Contains(img.ImageId))
+                .ToList();
+
+
+             List<string> imagePathsToDelete = new List<string>();
+            foreach (var image in imagesToRemove)
+            {
+                imagePathsToDelete.Add(image.ImagePath);
+                _dbContext.ProductImages.Remove(image);
+                isModified = true;
+            }
+            
+            var existingMap = existingProduct.Images.ToDictionary(img => img.ImageId);
+
+            foreach (var incomingImage in updateProduct.Images)
+            {
+                if (incomingImage.ImageId == Guid.Empty)
+                {
+                    incomingImage.ProductId = existingProduct.Id;
+                    existingProduct.Images.Add(incomingImage);
+                    isModified = true;
+                }
+                else
+                {
+                    
+
+                    if(existingMap.TryGetValue(incomingImage.ImageId, out var existing)
+                        && 
+                        existing.SelectedTag != incomingImage.SelectedTag)
+                    {
+                        existing.SelectedTag = incomingImage.SelectedTag;
+                        isModified = true;
+                    }
+                }
+            }
+
+                if (isModified)
+            {
+                await _dbContext.SaveChangesAsync();
+
+                foreach (var path in imagePathsToDelete)
+                {
+                    FileHelper.TryDeleteImage(path);
+                }
             }
         }
 
@@ -40,11 +147,7 @@ namespace FluentBlazor_Project.Services
                           .IgnoreQueryFilters()
                           .FirstOrDefaultAsync(p => p.Id == productId);
 
-            if (product is null)
-            {
-
-                throw new InvalidOperationException("Product Not found.");
-            }
+            ProductValidationHelper.EnsureValidProduct(product);
             // Toggle Flag
             product.IsDeleted = !product.IsDeleted;
 
@@ -61,7 +164,9 @@ namespace FluentBlazor_Project.Services
         public async Task<Product> RetrieveProductByIndexAsync(Guid guid)
         {
             using var _dbContext = CreateContext();
-            return await _dbContext.Set<Product>().FirstAsync(x => x.Id == guid);
+            return await _dbContext.Set<Product>()
+                .Include(p => p.Images)
+                .FirstAsync(x => x.Id == guid);
         }
 
         public async Task<List<Product>> GetProductByCategoryAsync(string category)
@@ -69,18 +174,22 @@ namespace FluentBlazor_Project.Services
             if (category != null)
             {
                 using var _dbContext = CreateContext();
-                return await _dbContext.Set<Product>().Where(p => p.Category == category).ToListAsync();
+                return await _dbContext.Set<Product>().Where(p => p.Category == category)
+                    .Include(p => p.Images)
+                    .ToListAsync();
             }
             else
             {
-                return [];
+                throw new ArgumentNullException("Category is null");
             }
         }
-
+        // Not Used
        public async Task<List<Product>> GetProductByFilterAsync(ProductFilterOptions options)
         {
             using var _dbContext = CreateContext();
-            var query = _dbContext.Set<Product>().AsQueryable();
+            var query = _dbContext.Set<Product>()
+                .Include(p => p.Images)
+                .AsQueryable();
             
             if (options == null)
             {
@@ -108,7 +217,9 @@ namespace FluentBlazor_Project.Services
             }
 
             // Returns List of products based on filter options
-            return await query.ToListAsync();
+            return await query
+                .Include(p => p.Images)
+                .ToListAsync();
 
         }
 
