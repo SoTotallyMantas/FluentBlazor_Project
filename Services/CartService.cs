@@ -41,7 +41,10 @@ namespace FluentBlazor_Project.Services
             using var _dbContext = CreateContext();
             quantity = Math.Max(1, quantity);
 
-            var cart = await GetOrCreateUserCartAsync(UserId);
+            var cart = await _dbContext.Carts
+                .Include(c => c.CartItems)
+                .ThenInclude(ci => ci.Product)
+                .FirstOrDefaultAsync(c => c.UserId == UserId);
 
             var existingItem = cart.CartItems
                 .FirstOrDefault(ci => ci.ProductId == productId);
@@ -62,6 +65,7 @@ namespace FluentBlazor_Project.Services
                 cart.CartItems.Add(new CartItem
                 {
                     Cart = cart,
+                    CartId = cart.Id,
                     ProductId = productId,
                     Quantity = quantity
                 });
@@ -70,24 +74,41 @@ namespace FluentBlazor_Project.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task RemoveFromCartAsync(string UserId,Guid productId)
+        public async Task RemoveFromCartAsync(string UserId, Guid productId)
         {
             using var _dbContext = CreateContext();
 
-            var cart = await GetOrCreateUserCartAsync(UserId);
+            var cart = await _dbContext.Carts
+                .Include(c => c.CartItems)
+                .ThenInclude(ci => ci.Product)
+                .FirstOrDefaultAsync(c => c.UserId == UserId);
 
-            if (cart.CartItems == null || cart.CartItems.Any())
+            if (cart == null)
             {
-               throw new InvalidOperationException("No CartItems");
+                throw new InvalidOperationException("Cart not found for the user.");
             }
-                var cartItem = cart.CartItems.FirstOrDefault(ci => ci.ProductId == productId);
-                if (cartItem != null)
-                {
-                    _dbContext.CartItems.Remove(cartItem);
-                    await _dbContext.SaveChangesAsync();
-                }
-            
 
+            if (cart.CartItems == null || !cart.CartItems.Any())
+            {
+                throw new InvalidOperationException("No items in the cart to remove.");
+            }
+
+            var cartItem = cart.CartItems.FirstOrDefault(ci => ci.ProductId == productId);
+            if (cartItem == null)
+            {
+                throw new InvalidOperationException("Cart item not found.");
+            }
+
+            if(cartItem.Quantity > 1)
+            {
+                cartItem.Quantity = cartItem.Quantity - 1;
+            } 
+            else
+            {
+                _dbContext.CartItems.Remove(cartItem);
+            }
+ 
+            await _dbContext.SaveChangesAsync();
         }
         public async Task UpdateQuantityAsync(string UserId, Guid productId, int newQuantity)
         {

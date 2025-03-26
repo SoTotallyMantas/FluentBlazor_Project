@@ -1,4 +1,9 @@
-﻿<FluentCard style="width: 300px; padding: 16px; margin: 10px; display: flex; flex-direction: column; gap: 10px;">
+﻿@using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.Interface
+@inject NavigationManager Navigation
+@inject ICartService _cartService
+
+<FluentCard style="width: 300px; padding: 16px; margin: 10px; display: flex; flex-direction: column; gap: 10px;">
     <p style="background: #f5f5f5; height: 180px; display: flex; align-items: center; justify-content: center; color: #666;">[Image Placeholder @Name]</p>
     <p>@Name</p>
     <p>Price: $@Price</p>
@@ -6,7 +11,7 @@
         <a href="/Product/@Category/@Id" style="width:85%;">
             <FluentButton Appearance="Appearance.Accent" Style="width:100%">More details</FluentButton>
         </a>
-        <FluentButton Appearance="Appearance.Accent" IconEnd="@(new Icons.Regular.Size24.Cart())" Style="width:10%" />
+        <FluentButton Appearance="Appearance.Accent" IconEnd="@(new Icons.Regular.Size24.Cart())" Style="width:10%" onclick="@addToCard" />
     </FluentStack>
 </FluentCard>
 
@@ -22,6 +27,33 @@
 
     [Parameter] 
     public decimal Price { get; set; }
-    
-    
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; }
+
+    private async Task addToCard()
+    {
+        var authState = await AuthStateTask;
+        var user = authState.User;
+        var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
+        if (userStringId != null)
+        {
+            await _cartService.AddCartItem(userStringId, Id, 1);
+            await LoadCartItems();
+        }
+    }
+
+    private List<CartItem> cartItems = new();
+    private async Task LoadCartItems()
+    {
+        var authState = await AuthStateTask;
+        var user = authState.User;
+        var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
+        if (userStringId != null)
+        {
+            var cart = await _cartService.GetOrCreateUserCartAsync(userStringId);
+            cartItems = cart.CartItems.ToList();
+            StateHasChanged();
+        }
+    }
 }

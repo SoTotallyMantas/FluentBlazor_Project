@@ -56,10 +56,10 @@ else
             </FluentInputFile>
         </div>
     </div>
-    <FluentTextArea Name="description" Rows="18" Cols="110" @bind-Value="product.Description" Label="Change description" Style="margin-right: 20px"/>
+    <FluentTextArea Name="description" Rows="18" Cols="110" @bind-Value="product.Description" Label="Change description" Style="margin-right: 20px" />
 
-    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" OnClick="@SaveChanges">Save</FluentButton>
-    <FluentButton Appearance="Appearance.Accent" Style="width: 75px">Cancel</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Style="width: 75px">Save</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">Cancel</FluentButton>
 }
 
 @code {
@@ -111,5 +111,10 @@ else
     {
        await imageUpload.SaveImageStreamToFile(Files);
 
+    }
+
+    private void handelCancel()
+    {
+        Navigation.NavigateTo("/admin");
     }
 }
