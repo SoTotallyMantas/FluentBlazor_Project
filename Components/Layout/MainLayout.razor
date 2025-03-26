@@ -1,6 +1,10 @@
 ﻿@inherits LayoutComponentBase
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
+@using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.Interface
+@inject ICartService CartService
+
 <FluentLayout>
     <FluentHeader>
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.SpaceBetween" VerticalAlignment="VerticalAlignment.Center" Width="100%">
@@ -11,16 +15,44 @@
                 <FluentButton id="cart-button" class="@(_isUserAuthenticated ? "" : "hidden")" IconStart="@(new Icons.Regular.Size24.Cart().WithColor(Color.Warning))" OnClick="@TopRightButtonClicked">
                     Cart
                 </FluentButton>
-                <FluentPopover Style="width: 300px;" VerticalThreshold="170" AnchorId="cart-button" @bind-Open="_visible">
-                    <Header>Callout Header</Header>
+                <FluentPopover Style="width: 450px; color: black;" VerticalThreshold="170" AnchorId="cart-button" @bind-Open="_visible">
+                    <Header>Cart</Header>
                     <Body>
-                        <FluentStack Orientation="Orientation.Vertical">
-                            <FluentCheckbox>Item 1</FluentCheckbox>
-                            <FluentCheckbox>Item 2</FluentCheckbox>
-                            <FluentTextField tabindex="0"></FluentTextField>
-                        </FluentStack>
+                        @if (cartItems != null && cartItems.Any())
+                        {
+                            <FluentStack Orientation="Orientation.Vertical" Style="max-height: 300px; overflow-y: auto;">
+                                @foreach (var item in cartItems)
+                                {
+                                    <FluentStack Orientation="Orientation.Horizontal"
+                                                 Style="padding: 10px; border-bottom: 1px solid #eee; justify-content: space-between; align-items: center;">
+                                        <span>@item.Product?.Name, Quantity: @item.Quantity</span>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <span>€@(item.Product?.Price * item.Quantity)</span>
+                                            <FluentButton Appearance="Appearance.Lightweight"
+                                                          IconStart="@(new Icons.Regular.Size16.Delete())"
+                                                          OnClick="@(() => RemoveItem(item.ProductId))" />
+                                        </div>
+                                    </FluentStack>
+                                }
+                            </FluentStack>
+                            <FluentStack Orientation="Orientation.Horizontal"
+                                         Style="padding: 10px; justify-content: space-between;">
+                                <strong>Total:</strong>
+                                <strong>€@CalculateTotal()</strong>
+                            </FluentStack>
+                        }
+                        else
+                        {
+                            <p style="padding: 10px;">Your cart is empty</p>
+                        }
                     </Body>
-                    <Footer>Callout Footer</Footer>
+                    <Footer>
+                            <FluentButton Appearance="Appearance.Lightweight"
+                                          IconStart="@(new Icons.Regular.Size16.ArrowDown())"
+                                          OnClick="@TopRightButtonClicked">
+                                Checkout
+                            </FluentButton>
+                    </Footer>
                 </FluentPopover>
             }
         </FluentStack>
@@ -52,6 +84,7 @@
     [CascadingParameter]
     private Task<AuthenticationState> AuthStateTask { get; set; }
     bool _visible;
+    private List<CartItem> cartItems = new();
     public void TopRightButtonClicked() {
         ToggleVisible();
 
@@ -61,6 +94,7 @@
     private void ToggleVisible()
     {
         _visible = !_visible;
+        LoadCartItems();
     }
 
     private bool _isUserAuthenticated;
@@ -74,8 +108,34 @@
         Console.WriteLine(RendererInfo.IsInteractive);
     }
 
+    private async Task LoadCartItems()
+    {
+        var authState = await AuthStateTask;
+        var user = authState.User;
+        var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
+        if(userStringId != null)
+        {
+            var cart = await CartService.GetOrCreateUserCartAsync(userStringId);
+            cartItems = cart.CartItems.ToList();
+            StateHasChanged();
+        }
+    }
 
-    
+    private decimal CalculateTotal()
+    {
+        return cartItems?.Sum(item => item.Product?.Price * item.Quantity ?? 0) ?? 0;
+    }
 
-    
+    private async Task RemoveItem(Guid productId)
+    {
+        var authState = await AuthStateTask;
+        var user = authState.User;
+        var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
+        if (userStringId != null)
+        {
+            await CartService.RemoveFromCartAsync(userStringId, productId);
+            await LoadCartItems();
+        }
+    }
+
 }
