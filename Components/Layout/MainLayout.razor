@@ -8,8 +8,14 @@
 <FluentLayout>
     <FluentHeader>
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.SpaceBetween" VerticalAlignment="VerticalAlignment.Center" Width="100%">
-            <span>Computer parts shop</span>
-
+            <span>Electromark</span>
+            <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Center">
+                <span>Select language:</span>
+                <FluentSelect TOption=string Width="150px">
+                    <FluentOption Selected="true">English</FluentOption>
+                    <FluentOption Selected="false">Lithuanian</FluentOption>
+                </FluentSelect>
+            </FluentStack>
             @if (RendererInfo.IsInteractive && _isUserAuthenticated)
             {
                 <FluentButton id="cart-button" class="@(_isUserAuthenticated ? "" : "hidden")" IconStart="@(new Icons.Regular.Size24.Cart().WithColor(Color.Warning))" OnClick="@TopRightButtonClicked">
@@ -24,19 +30,19 @@
                                 @foreach (var item in cartItems)
                                 {
                                     <FluentStack Orientation="Orientation.Horizontal"
-                                                 Style="padding: 10px; border-bottom: 1px solid #eee; justify-content: space-between; align-items: center;">
+                                    Style="padding: 10px; border-bottom: 1px solid #eee; justify-content: space-between; align-items: center;">
                                         <span>@item.Product?.Name, Quantity: @item.Quantity</span>
                                         <div style="display: flex; align-items: center; gap: 10px;">
                                             <span>€@(item.Product?.Price * item.Quantity)</span>
                                             <FluentButton Appearance="Appearance.Lightweight"
-                                                          IconStart="@(new Icons.Regular.Size16.Delete())"
-                                                          OnClick="@(() => RemoveItem(item.ProductId))" />
+                                            IconStart="@(new Icons.Regular.Size16.Delete())"
+                                            OnClick="@(() => RemoveItem(item.ProductId))" />
                                         </div>
                                     </FluentStack>
                                 }
                             </FluentStack>
                             <FluentStack Orientation="Orientation.Horizontal"
-                                         Style="padding: 10px; justify-content: space-between;">
+                            Style="padding: 10px; justify-content: space-between;">
                                 <strong>Total:</strong>
                                 <strong>€@CalculateTotal()</strong>
                             </FluentStack>
@@ -47,11 +53,11 @@
                         }
                     </Body>
                     <Footer>
-                            <FluentButton Appearance="Appearance.Lightweight"
-                                          IconStart="@(new Icons.Regular.Size16.ArrowDown())"
-                                          OnClick="@TopRightButtonClicked">
-                                Checkout
-                            </FluentButton>
+                        <FluentButton Appearance="Appearance.Lightweight"
+                        IconStart="@(new Icons.Regular.Size16.ArrowDown())"
+                        OnClick="@openPayment">
+                            Payment
+                        </FluentButton>
                     </Footer>
                 </FluentPopover>
             }
@@ -85,16 +91,24 @@
     private Task<AuthenticationState> AuthStateTask { get; set; }
     bool _visible;
     private List<CartItem> cartItems = new();
-    public void TopRightButtonClicked() {
+
+    public void TopRightButtonClicked() 
+    {
         ToggleVisible();
-
-
     }
 
     private void ToggleVisible()
     {
         _visible = !_visible;
         LoadCartItems();
+    }
+
+    private void openPayment()
+    {
+        if(cartItems.Any())
+        {
+            Navigation.NavigateTo("/payment");
+        }
     }
 
     private bool _isUserAuthenticated;
@@ -137,5 +151,4 @@
             await LoadCartItems();
         }
     }
-
 }
