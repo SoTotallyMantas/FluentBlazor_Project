@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FluentBlazor_Project.Data.Models.ImageTables;
+using System.ComponentModel.DataAnnotations;
 
 namespace FluentBlazor_Project.Data.Models
 {
@@ -22,6 +23,8 @@ namespace FluentBlazor_Project.Data.Models
 
         public bool IsDeleted { get; set; } = false;
 
+
+        public List<ProductImages>? Images { get; set; }
 
     }
 }

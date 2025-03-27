@@ -1,4 +1,5 @@
 using FluentBlazor_Project.Data.Models;
+using FluentBlazor_Project.Data.Models.ImageTables;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,9 @@ namespace FluentBlazor_Project.Data
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Favorites> Favorites { get; set; }
+        public DbSet<CategoryImages> CategoryImages { get; set; }
 
+        public DbSet<ProductImages> ProductImages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -29,6 +32,24 @@ namespace FluentBlazor_Project.Data
             // Global hide favorites if product is soft-deleted
             modelBuilder.Entity<Favorites>().HasQueryFilter(p => !p.Product.IsDeleted);
 
+            // ProductImage To Products  Many To One
+            modelBuilder.Entity<Product>()
+                .HasMany( p => p.Images)
+                .WithOne(pi => pi.Product)
+                .HasForeignKey(pi => pi.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // CategoryImages to Category One to One
+            modelBuilder.Entity<Category>()
+                .HasOne(c => c.Images)
+                .WithOne(ci => ci.Category)
+                .HasForeignKey<CategoryImages>(ci => ci.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // CategoryImages Ensure Unique to Each Category
+            modelBuilder.Entity<CategoryImages>()
+                .HasIndex(ci => ci.CategoryId)
+                .IsUnique();    
             // Set Category Name as Unique to prevent duplicates
             modelBuilder.Entity<Category>()
                 .HasIndex(c => c.CategoryName)
@@ -99,6 +120,12 @@ namespace FluentBlazor_Project.Data
                 .Property(p => p.Price)
                 .HasPrecision(18, 2);
             // Generate Key in Database
+            modelBuilder.Entity<CategoryImages>()
+                .Property(ci => ci.Id)
+                .ValueGeneratedOnAdd();
+            modelBuilder.Entity<ProductImages>()
+                .Property(pi => pi.Id)
+                .ValueGeneratedOnAdd();
             modelBuilder.Entity<Category>()
                 .Property(c => c.Id)
                 .ValueGeneratedOnAdd();

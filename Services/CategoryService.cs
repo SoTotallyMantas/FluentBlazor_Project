@@ -1,5 +1,7 @@
 ﻿using FluentBlazor_Project.Data;
 using FluentBlazor_Project.Data.Models;
+using FluentBlazor_Project.Data.Models.ImageTables;
+using FluentBlazor_Project.HelperFunctions;
 using FluentBlazor_Project.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +20,7 @@ namespace FluentBlazor_Project.Services
         {
             using var _dbContext = CreateContext();
             return await _dbContext.Category
+                .Include(c=> c.Images)
                 .OrderBy(c => c.CategoryName)
                 .ToListAsync();
         }
@@ -25,55 +28,123 @@ namespace FluentBlazor_Project.Services
         public async Task<Category> GetByIdAsync(Guid Id)
         {
             using var _dbContext = CreateContext();
-            return await _dbContext.Category.FirstAsync(c => c.Id == Id);
+            return await _dbContext.Category
+                .Include(c => c.Images)
+                .FirstAsync(c => c.Id == Id);
         }
 
-        public async Task DeleteCategoryAsync(string categoryName)
+        public async Task DeleteCategoryAsync(Category category)
         {
+           ValidateCategory(category);
             using var _dbContext = CreateContext();
-            var category =  await _dbContext.Category.FirstOrDefaultAsync(c => c.CategoryName == categoryName.Trim().ToLowerInvariant());
-            if (category != null)
+           var trackedCategory =  await _dbContext.Category
+                .Include(c=>c.Images)
+                .FirstOrDefaultAsync(c => c.Id == category.Id);
+
+            if (trackedCategory != null)
             {
-                _dbContext.Category.Remove(category);
-               await _dbContext.SaveChangesAsync();
+                
+
+                var imagePath = trackedCategory.Images?.ImagePath;
+                _dbContext.Category.Remove(trackedCategory);
+                await _dbContext.SaveChangesAsync();
+                if (!string.IsNullOrEmpty(imagePath))
+                {
+                    FileHelper.TryDeleteImage(imagePath);
+                }
             }
             else
             {
-                throw new InvalidOperationException($"No Category '{categoryName ?? "Unknown"}' Exists"); 
+                throw new InvalidOperationException($"Category with ID '{category.Id}' does not exist");
             }
+
+    
 
 
         }
 
-        public async Task CreateCategoryAsync(string categoryName,string title ,string description)
+        public async Task CreateCategoryAsync(Category category)
         {
+            ValidateCategory(category);
             using var _dbContext = CreateContext();
-            if (string.IsNullOrWhiteSpace(categoryName))
-                throw new ArgumentNullException("Category name required.", nameof(categoryName));
 
-           
 
-            Category newCategory = new Category()
-                {
-                CategoryName = categoryName.Trim().ToLowerInvariant(),
-                Title = string.IsNullOrWhiteSpace(title) ? "Untitled" : title.Trim(),
-                Description = string.IsNullOrWhiteSpace(description) ? "No Description" : description.Trim()
-                };
 
-            await _dbContext.Category.AddAsync(newCategory);
+
+            category.CategoryName = category.CategoryName.Trim().ToLowerInvariant();
+            category.Title = string.IsNullOrWhiteSpace(category.Title) ? "Untitled" : category.Title.Trim();
+            category.Description = string.IsNullOrWhiteSpace(category.Description) ? "No Description" : category.Description.Trim();
+
+            if (category.Id == Guid.Empty)
+                category.Id = Guid.NewGuid();
+
+            if (category.Images != null)
+            {
+                 if(category.Images.Id == Guid.Empty)
+                  category.Images.Id = Guid.NewGuid();
+
+                category.Images.CategoryId = category.Id;
+                category.Images.Category = category;
+            }
+
+            await _dbContext.Category.AddAsync(category);
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateCategoryAsync(string categoryName,string title,string description)
+        public async Task UpdateCategoryAsync(Category category)
         {
+            ValidateCategory(category);
             using var _dbContext = CreateContext();
-            var category = _dbContext.Category.FirstOrDefault(c => c.CategoryName == categoryName);
-            if (category != null)
+            var trackedCategory = _dbContext.Category
+                .Include(c=> c.Images)
+                .FirstOrDefault(c => c.Id == category.Id);
+            ValidateCategory(trackedCategory);
+
+            trackedCategory.CategoryName = string.IsNullOrWhiteSpace(category.CategoryName) ? trackedCategory.CategoryName : category.CategoryName.Trim();
+            trackedCategory.Title = string.IsNullOrWhiteSpace(category.Title) ? "Untitled" : category.Title.Trim();
+            trackedCategory.Description = string.IsNullOrWhiteSpace(category.Description) ? "No Description" : category.Description.Trim();
+            // Deletion of old path
+            string? oldPath = null;
+            if(category.Images != null)
             {
-                category.Title = string.IsNullOrWhiteSpace(title) ? "Untitled" : title.Trim();
-                category.Description = string.IsNullOrWhiteSpace(title) ? "No Description" : description.Trim();
+                if(trackedCategory.Images == null)
+                {
+                    trackedCategory.Images = new CategoryImages
+                    {
+                        Id = Guid.NewGuid(),
+                        ImagePath = category.Images.ImagePath,
+                        CategoryId = category.Id,
+                        Category = category
+                    };
+                }
+                else
+                {
+                    oldPath = trackedCategory.Images.ImagePath;
+                    trackedCategory.Images.ImagePath = category.Images.ImagePath;
+                }
+            }
+
+
                 await _dbContext.SaveChangesAsync();
+
+                if(!string.Equals(oldPath,category.Images.ImagePath, StringComparison.OrdinalIgnoreCase))
+                {
+                    FileHelper.TryDeleteImage(category.Images.ImagePath);
+                }
+            
+        }
+
+
+        private void ValidateCategory(Category category)
+        {
+            if (category == null)
+            {
+                throw new ArgumentNullException(nameof(category));
+            }
+            if (string.IsNullOrWhiteSpace(category.CategoryName))
+            {
+                throw new ArgumentException("Category name is required.", nameof(category.CategoryName));
             }
         }
-    }
+        }
 }

@@ -291,7 +291,7 @@ namespace FluentBlazor_Project.Components.Products
 
             foreach (Product product in allProducts)
             {
-               await _ProductService.AddProuctAsync(product);
+               await _ProductService.AddProductAsync(product);
             }
         }
 

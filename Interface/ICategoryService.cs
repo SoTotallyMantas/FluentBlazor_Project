@@ -7,9 +7,9 @@ namespace FluentBlazor_Project.Interface
 
         Task<List<Category>> GetCategoriesAsync();
         Task<Category> GetByIdAsync(Guid id);
-        Task DeleteCategoryAsync(string categoryName);
-        Task CreateCategoryAsync(string categoryName, string title, string description);
-        Task UpdateCategoryAsync(string categoryName, string title, string description);
+        Task DeleteCategoryAsync(Category category);
+        Task CreateCategoryAsync(Category category);
+        Task UpdateCategoryAsync(Category category);
 
 
 }
