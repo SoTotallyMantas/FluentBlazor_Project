@@ -1,28 +1,29 @@
 ﻿@inherits LayoutComponentBase
+@using System.Globalization
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
 @using FluentBlazor_Project.Data.Models
 @using FluentBlazor_Project.Interface
 @inject ICartService CartService
+@inject IStringLocalizer<Resource> Localizer
 
 <FluentLayout>
     <FluentHeader>
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.SpaceBetween" VerticalAlignment="VerticalAlignment.Center" Width="100%">
             <span>Electromark</span>
             <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Center">
-                <span>Select language:</span>
-                <FluentSelect TOption=string Width="150px">
-                    <FluentOption Selected="true">English</FluentOption>
-                    <FluentOption Selected="false">Lithuanian</FluentOption>
+                <FluentSelect TOption=string Width="150px" @bind-Value="CultureString">
+                    <FluentOption value="en-US">English</FluentOption>
+                    <FluentOption value="lt">Lithuanian</FluentOption>
                 </FluentSelect>
             </FluentStack>
             @if (RendererInfo.IsInteractive && _isUserAuthenticated)
             {
                 <FluentButton id="cart-button" class="@(_isUserAuthenticated ? "" : "hidden")" IconStart="@(new Icons.Regular.Size24.Cart().WithColor(Color.Warning))" OnClick="@TopRightButtonClicked">
-                    Cart
+                    @Localizer["cart"]
                 </FluentButton>
                 <FluentPopover Style="width: 450px; color: black;" VerticalThreshold="170" AnchorId="cart-button" @bind-Open="_visible">
-                    <Header>Cart</Header>
+                    <Header>@Localizer["cart"]</Header>
                     <Body>
                         @if (cartItems != null && cartItems.Any())
                         {
@@ -31,7 +32,7 @@
                                 {
                                     <FluentStack Orientation="Orientation.Horizontal"
                                     Style="padding: 10px; border-bottom: 1px solid #eee; justify-content: space-between; align-items: center;">
-                                        <span>@item.Product?.Name, Quantity: @item.Quantity</span>
+                                        <span>@(item.Product?.Name + ", " + Localizer["quantity"] + item.Quantity)</span>
                                         <div style="display: flex; align-items: center; gap: 10px;">
                                             <span>€@(item.Product?.Price * item.Quantity)</span>
                                             <FluentButton Appearance="Appearance.Lightweight"
@@ -43,20 +44,20 @@
                             </FluentStack>
                             <FluentStack Orientation="Orientation.Horizontal"
                             Style="padding: 10px; justify-content: space-between;">
-                                <strong>Total:</strong>
+                                <strong>@Localizer["total"]</strong>
                                 <strong>€@CalculateTotal()</strong>
                             </FluentStack>
                         }
                         else
                         {
-                            <p style="padding: 10px;">Your cart is empty</p>
+                            <p style="padding: 10px;">@Localizer["noCart"]</p>
                         }
                     </Body>
                     <Footer>
                         <FluentButton Appearance="Appearance.Lightweight"
                         IconStart="@(new Icons.Regular.Size16.ArrowDown())"
                         OnClick="@openPayment">
-                            Payment
+                            @Localizer["payment"]
                         </FluentButton>
                     </Footer>
                 </FluentPopover>
@@ -114,12 +115,32 @@
     private bool _isUserAuthenticated;
     protected override async Task OnInitializedAsync()
     {
+        CultureString = CultureInfo.CurrentCulture.Name;
         var authState = await AuthStateTask;
         var user = authState.User;
 
         _isUserAuthenticated = user.Identity?.IsAuthenticated ?? true;
         Console.WriteLine(_isUserAuthenticated);
         Console.WriteLine(RendererInfo.IsInteractive);
+    }
+
+    private string CultureString
+    {
+        get => CultureInfo.CurrentCulture.Name;
+        set
+        {
+            if (CultureInfo.CurrentCulture.Name != value)
+            {
+                var newCulture = new CultureInfo(value);
+                var uri = new Uri(Navigation.Uri)
+                    .GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+                var cultureEscaped = Uri.EscapeDataString(newCulture.Name);
+                var uriEscaped = Uri.EscapeDataString(uri);
+
+                var fullUri = $"Culture/Set?culture={cultureEscaped}&redirectUri={uriEscaped}";
+                Navigation.NavigateTo(fullUri, forceLoad: true);
+            }
+        }
     }
 
     private async Task LoadCartItems()

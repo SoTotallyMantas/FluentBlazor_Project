@@ -1,4 +1,6 @@
-﻿<FluentCard Width="200px" Height="250px" style="display: flex; flex-direction: column; justify-content: space-between; padding: 10px;">
+﻿@inject IStringLocalizer<Resource> Localizer
+
+<FluentCard Width="200px" Height="250px" style="display: flex; flex-direction: column; justify-content: space-between; padding: 10px;">
     <div style="text-align: center;">
         @{
             // Replace with image // Add Categories And Or RecommendedCard Image //
@@ -7,7 +9,7 @@
         <p style="font-weight: 600; margin-top: 10px;">@CardTitle</p>
     </div>
     <a href="Product/@CardCategory" style="text-decoration: none;">
-        <FluentButton Appearance="Appearance.Accent" Style="width: 100%;">Open</FluentButton>
+        <FluentButton Appearance="Appearance.Accent" Style="width: 100%;">@Localizer["open"]</FluentButton>
     </a>
 </FluentCard>
 

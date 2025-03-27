@@ -4,15 +4,16 @@
 @inject NavigationManager Navigation
 @inject ICartService CartService
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IStringLocalizer<Resource> Localizer
 
-<h3>Payment</h3>
+<h3>@Localizer["payment"]</h3>
 
 <FluentGrid Spacing="4" AdaptiveRendering="true" Style="padding: 20px; margin: 0 auto;">
 
     <FluentGridItem xs="12" sm="6">
         <FluentStack Orientation="Orientation.Vertical" Style="gap: 15px;">
             <FluentCard Style="padding: 20px;">
-                <h4>Purchase Cart</h4>
+                <h4>@Localizer["cart"]</h4>
                 @foreach (var item in cartItems)
                 {
                     <FluentCard Style="padding: 15px;">
@@ -21,7 +22,7 @@
                             <div style="background: #f5f5f5; height: 70px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #666;">
                                 [Image Placeholder]
                             </div>
-                            <span style="flex-grow: 1;">@item.Product?.Name, Quantity @item.Quantity</span>
+                            <span style="flex-grow: 1;">@item.Product?.Name, @Localizer["quantity"] @item.Quantity</span>
                             <span style="min-width: 80px;">€@(item.Product?.Price * item.Quantity)</span>
                             <FluentButton Appearance="Appearance.Lightweight"
                             IconStart="@(new Icons.Regular.Size16.Delete())"
@@ -34,11 +35,11 @@
     </FluentGridItem>
 
     <FluentGridItem xs="12" sm="6">
-        <FluentCard Style="padding: 20px;" Height="250px">
-            <h4>Order Summary</h4>
+        <FluentCard Style="padding: 20px;" Height="225px">
+            <h4>@Localizer["orderSummary"]</h4>
             <FluentStack Orientation="Orientation.Vertical" Style="gap: 10px;">
                 <FluentStack Orientation="Orientation.Horizontal" Style="justify-content: space-between;">
-                    <span>Price without PVM:</span>
+                    <span>@Localizer["withoutPVM"]</span>
                     <strong>€@(CalculateTotal() - CalculatePVM())</strong>
                 </FluentStack>
                 <FluentStack Orientation="Orientation.Horizontal" Style="justify-content: space-between;">
@@ -46,28 +47,28 @@
                     <strong>€@CalculatePVM()</strong>
                 </FluentStack>
                 <FluentStack Orientation="Orientation.Horizontal" Style="justify-content: space-between;">
-                    <span>Total:</span>
+                    <span>@Localizer["total"]</span>
                     <strong>€@CalculateTotal()</strong>
                 </FluentStack>
-                <FluentButton Appearance="Appearance.Accent" Style="align-self: flex-end; width:75%; margin-top:10px;">Pay Now</FluentButton>
+                <FluentButton Appearance="Appearance.Accent" Style="align-self: flex-end; width:75%; margin-top:10px;">@Localizer["payNow"]</FluentButton>
             </FluentStack>
         </FluentCard>
     </FluentGridItem>
     
     <FluentGridItem xs="12" sm="6">
         <FluentCard Style="padding: 20px;">
-            <h4>Shipping Address</h4>
+            <h4>@Localizer["shippingAddress"]</h4>
             <FluentStack Orientation="Orientation.Vertical" Style="gap: 15px;">
                 <FluentStack Orientation="Orientation.Horizontal">
-                    <FluentTextField Placeholder="First name" Style="width: 50%;" DisplayName=""/>
-                    <FluentTextField Placeholder="Last name" Style="width: 50%;" />
+                    <FluentTextField Placeholder="@Localizer["firstName"]" Style="width: 50%;" DisplayName="" />
+                    <FluentTextField Placeholder="@Localizer["lastName"]" Style="width: 50%;" />
                 </FluentStack>
-                <FluentTextField Placeholder="Street Address" Style="width: 100%;" />
+                <FluentTextField Placeholder="@Localizer["streetAddress"]" Style="width: 100%;" />
                 <FluentStack Orientation="Orientation.Horizontal">
-                    <FluentTextField Placeholder="City" Style="width: 75%;" />
-                    <FluentTextField Placeholder="Zip Code" Style="width: 25%;" />
+                    <FluentTextField Placeholder="@Localizer["city"]" Style="width: 75%;" />
+                    <FluentTextField Placeholder="@Localizer["zipCode"]" Style="width: 25%;" />
                 </FluentStack>
-                <FluentTextField Placeholder="Country" Style="width: 100%;" />
+                <FluentTextField Placeholder="@Localizer["country"]" Style="width: 100%;" />
             </FluentStack>
         </FluentCard>
     </FluentGridItem>
@@ -76,7 +77,7 @@
         <FluentCard Style="padding: 20px;">
             <h4>Payment Details</h4>
             <FluentStack Orientation="Orientation.Vertical" Style="gap: 15px;">
-                <FluentTextField Placeholder="Card Number" Style="width: 100%;" Maxlength="16" Minlength="16" />
+                <FluentTextField Placeholder="@Localizer["cardNumber"]" Style="width: 100%;" Maxlength="16" Minlength="16" />
                 <FluentStack Orientation="Orientation.Horizontal" Style="gap: 15px;">
                     <FluentTextField Placeholder="MM/YY" Style="width: 100px;" />
                     <FluentTextField Placeholder="CVV" Style="width: 100px;" Maxlength="3" Minlength="3" />
