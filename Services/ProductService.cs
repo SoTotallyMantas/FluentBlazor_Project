@@ -86,13 +86,13 @@ namespace FluentBlazor_Project.Services
                 isModified = true;
             }
 
-            var newImages = updateProduct.Images.Where(img => img.ImageId == Guid.Empty).ToList();
-            var existingUpdatedImages = updateProduct.Images.Where(img => img.ImageId != Guid.Empty).ToList();
+            var newImages = updateProduct.Images.Where(img => img.Id == Guid.Empty).ToList();
+            var existingUpdatedImages = updateProduct.Images.Where(img => img.Id != Guid.Empty).ToList();
             
-            var existingIds = existingUpdatedImages.Select(img => img.ImageId).ToHashSet();
+            var existingIds = existingUpdatedImages.Select(img => img.Id).ToHashSet();
             // Database Images that are not in the updated list of images are sent into ImagesToRemove List
             var imagesToRemove = existingProduct.Images
-                .Where(img => !existingIds.Contains(img.ImageId))
+                .Where(img => !existingIds.Contains(img.Id))
                 .ToList();
 
 
@@ -104,11 +104,11 @@ namespace FluentBlazor_Project.Services
                 isModified = true;
             }
             
-            var existingMap = existingProduct.Images.ToDictionary(img => img.ImageId);
+            var existingMap = existingProduct.Images.ToDictionary(img => img.Id);
 
             foreach (var incomingImage in updateProduct.Images)
             {
-                if (incomingImage.ImageId == Guid.Empty)
+                if (incomingImage.Id == Guid.Empty)
                 {
                     incomingImage.ProductId = existingProduct.Id;
                     existingProduct.Images.Add(incomingImage);
@@ -118,7 +118,7 @@ namespace FluentBlazor_Project.Services
                 {
                     
 
-                    if(existingMap.TryGetValue(incomingImage.ImageId, out var existing)
+                    if(existingMap.TryGetValue(incomingImage.Id, out var existing)
                         && 
                         existing.SelectedTag != incomingImage.SelectedTag)
                     {

@@ -2,7 +2,7 @@
 {
     public class ProductImages
     {
-        public Guid ImageId { get; set; }
+        public Guid Id { get; set; }
 
         public Guid ProductId { get; set; }
         public required Product Product { get; set; }

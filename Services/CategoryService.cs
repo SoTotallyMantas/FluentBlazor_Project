@@ -80,8 +80,8 @@ namespace FluentBlazor_Project.Services
 
             if (category.Images != null)
             {
-                 if(category.Images.ImageId == Guid.Empty)
-                  category.Images.ImageId = Guid.NewGuid();
+                 if(category.Images.Id == Guid.Empty)
+                  category.Images.Id = Guid.NewGuid();
 
                 category.Images.CategoryId = category.Id;
                 category.Images.Category = category;
@@ -111,7 +111,7 @@ namespace FluentBlazor_Project.Services
                 {
                     trackedCategory.Images = new CategoryImages
                     {
-                        ImageId = Guid.NewGuid(),
+                        Id = Guid.NewGuid(),
                         ImagePath = category.Images.ImagePath,
                         CategoryId = category.Id,
                         Category = category

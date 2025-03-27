@@ -2,7 +2,7 @@
 {
     public class CategoryImages
     {
-        public Guid ImageId { get; set; }
+        public Guid Id { get; set; }
 
         public Guid CategoryId { get; set; }
         public required Category Category { get; set; }

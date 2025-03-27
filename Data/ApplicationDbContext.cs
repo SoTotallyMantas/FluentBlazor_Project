@@ -121,10 +121,10 @@ namespace FluentBlazor_Project.Data
                 .HasPrecision(18, 2);
             // Generate Key in Database
             modelBuilder.Entity<CategoryImages>()
-                .Property(ci => ci.ImageId)
+                .Property(ci => ci.Id)
                 .ValueGeneratedOnAdd();
             modelBuilder.Entity<ProductImages>()
-                .Property(pi => pi.ImageId)
+                .Property(pi => pi.Id)
                 .ValueGeneratedOnAdd();
             modelBuilder.Entity<Category>()
                 .Property(c => c.Id)
