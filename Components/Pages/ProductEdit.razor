@@ -206,7 +206,7 @@ else
         Console.WriteLine("START OF SERVICE");
         await _productService.EditProductAsync(product);
         Console.WriteLine("END OF SERVICE");
-        //Navigation.NavigateTo("/admin");
+        Navigation.NavigateTo("/admin");
     }
 
     private void DeleteImage(Guid imageId)

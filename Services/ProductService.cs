@@ -91,8 +91,8 @@ namespace FluentBlazor_Project.Services
             
             List<string> imagePathsToDelete = new List<string>();
 
-                
-                var existingMap = existingProduct.Images.ToDictionary(img => img.Id);
+                // explicitly defining img => img to rember how it works
+                var existingMap = existingProduct.Images.ToDictionary(img => img.Id, img => img);
             
 
                 var imagesToRemove = existingProduct.Images
