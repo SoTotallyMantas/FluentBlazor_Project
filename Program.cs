@@ -51,6 +51,9 @@ namespace FluentBlazor_Project
             builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
+            builder.Services.AddLocalization();
+            builder.Services.AddControllers();
+            
             builder.Services.AddDataGridEntityFrameworkAdapter();
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -75,6 +78,15 @@ namespace FluentBlazor_Project
 
             var app = builder.Build();
 
+            string[] supportedCultures = ["en-US", "lt"];
+            var localizationOptions = new RequestLocalizationOptions()
+                .SetDefaultCulture(supportedCultures[0])
+                .AddSupportedCultures(supportedCultures)
+                .AddSupportedUICultures(supportedCultures);
+
+            app.UseRequestLocalization(localizationOptions);
+
+            app.MapControllers();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

@@ -1,10 +1,11 @@
 ﻿@page "/"
+@inject IStringLocalizer<Resource> Localizer
 
 <PageTitle>Electromark</PageTitle>
 <h1>Electromark</h1>
 <FluentDivider />
 
-<h2>Recommended</h2>
+<h2>@Localizer["homeRecommended"]</h2>
 <div style="display:flex; justify-content:center">
     <FluentHorizontalScroll Style="@($"width: {Width}; height: {Height}; margin-bottom: 20px")" Speed="1200" Easing="ScrollEasing.EaseInOut">
         @for (int i = 0; i <= 5; i++)
@@ -15,7 +16,7 @@
     <FluentDivider />
 </div>
 
-<h3 Style="margin-top:20px">Categories</h3>
+<h3 Style="margin-top:20px">@Localizer["homeCategory"]</h3>
 <div>
     <FluentStack HorizontalGap="30" Style="display:flex; justify-content:center">
         @for (int i = 0; i <= 5; i++)

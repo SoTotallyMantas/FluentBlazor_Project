@@ -3,15 +3,16 @@
 @implements IDisposable
 
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<Resource> Localizer
 
 <div class="navmenu">
     <input type="checkbox" title="Menu expand/collapse toggle" id="navmenu-toggle" class="navmenu-icon" />
     <label for="navmenu-toggle" class="navmenu-icon"><FluentIcon Value="@(new Icons.Regular.Size20.Navigation())" Color="Color.Fill" /></label>
     <nav class="sitenav" aria-labelledby="main-menu">
         <FluentNavMenu Id="main-menu" Collapsible="true" Width="250" Title="Navigation menu" @bind-Expanded="expanded" CustomToggle="true">
-            <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">Home</FluentNavLink>
+            <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">@Localizer["home"]</FluentNavLink>
             @*Product Categories with Links to products*@
-            <FluentNavGroup Title="Product Categories" Tooltip="Product Categories" Icon="@(new Icons.Regular.Size20.List())">
+            <FluentNavGroup Title="@Localizer["productCategories"]" Tooltip="@Localizer["productCategories"]" Icon="@(new Icons.Regular.Size20.List())">
                 <FluentNavLink Href="Product/CPU">Processors</FluentNavLink>
                 <FluentNavLink Href="Product/GPU">Graphics Card</FluentNavLink>
                 <FluentNavLink Href="Product/PSU">Power Block</FluentNavLink>
@@ -19,21 +20,19 @@
                 <FluentNavLink Href="Product/RAM">RAM memory</FluentNavLink>
                 <FluentNavLink Href="Product/Storage">Storage</FluentNavLink>
             </FluentNavGroup>
-            <FluentNavLink Href="counter" Icon="@(new Icons.Regular.Size20.NumberSymbolSquare())" IconColor="Color.Accent">Counter</FluentNavLink>
-            <FluentNavLink Href="weather" Icon="@(new Icons.Regular.Size20.WeatherPartlyCloudyDay())" IconColor="Color.Accent">Weather</FluentNavLink>
-            <FluentNavLink Href="auth" Icon="@(new Icons.Regular.Size20.LockClosedKey())" IconColor="Color.Accent">Auth Required</FluentNavLink>
+            <FluentNavLink Href="auth" Icon="@(new Icons.Regular.Size20.LockClosedKey())" IconColor="Color.Accent">@Localizer["authReq"]</FluentNavLink>
             <AuthorizeView>
                 <Authorized>
                     <FluentNavLink Href="Account/Manage">@context.User.Identity?.Name</FluentNavLink>
                     <form action="Account/Logout" method="post">
                         <AntiforgeryToken />
                         <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                        <FluentButton Type="ButtonType.Submit" Style="width: 100%;">Logout</FluentButton>
+                        <FluentButton Type="ButtonType.Submit" Style="width: 100%;">@Localizer["logout"]</FluentButton>
                     </form>
                 </Authorized>
                 <NotAuthorized>
-                    <FluentNavLink Href="Account/Register">Register</FluentNavLink>
-                    <FluentNavLink Href="Account/Login">Login</FluentNavLink>
+                    <FluentNavLink Href="Account/Register">@Localizer["register"]</FluentNavLink>
+                    <FluentNavLink Href="Account/Login">@Localizer["login"]</FluentNavLink>
                 </NotAuthorized>
             </AuthorizeView>
         </FluentNavMenu>

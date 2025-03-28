@@ -3,9 +3,11 @@
 @using FluentBlazor_Project.Interface
 @inject NavigationManager Navigation
 @inject IProductService _productService
+@inject IStringLocalizer<Resource> Localizer
+
 <div style="margin: 0 auto; padding: 20px;">
     <nav style="margin-bottom: 20px;">
-        <a href="/" style="text-decoration: none; color: #666;">Home</a> >
+        <a href="/" style="text-decoration: none; color: #666;">@Localizer["home"]</a> >
         <a href="/Product/@Category" style="text-decoration: none; color: #666;">@Category</a> >
         <span style="color: #000;">@product?.Name</span>
     </nav>
@@ -17,24 +19,24 @@
 
         <div>
             <h1 style="font-size: 2rem; margin-bottom: 15px; font-weight: 600;">@product?.Name</h1>
-            <p><strong>Category:</strong> @product?.Category</p>
-            <p><strong>Type:</strong> @product?.Type</p>
+            <p><strong>@Localizer["category"]</strong> @product?.Category</p>
+            <p><strong>@Localizer["type"]</strong> @product?.Type</p>
             <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 15px;">$@product?.Price</p>
             <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-                <FluentNumberField @bind-Value="Quantity" Label="Quantity: " Style="width: 20%"/>
-                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size24.Cart())" Style="width: 75%">Add to Cart</FluentButton>
+                <FluentNumberField @bind-Value="Quantity" Label=@Localizer["quantity"] Style="width: 20%"/>
+                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size24.Cart())" Style="width: 75%">@Localizer["addToCart"]</FluentButton>
             </div>
             <FluentDivider />
 
             <FluentTabs style="margin-top: 20px;">
-                <FluentTab id="descriptionTab" label="Description">
+                <FluentTab id="descriptionTab" label=@Localizer["tabDescription"]>
                     @if (product != null)
                     {
                         var parts = product.Description.Split(new string[] { "<hr>" }, StringSplitOptions.None);
                         <p>@(new MarkupString(parts[0]))</p>
                     }
                 </FluentTab>
-                <FluentTab id="specificationTab" label="Specifications">
+                <FluentTab id="specificationTab" label=@Localizer["tabSpecifications"]>
                     @if (product != null)
                     {
                         var parts = product.Description.Split(new string[] { "<hr>" }, StringSplitOptions.None);
@@ -47,7 +49,7 @@
             </FluentTabs>
 
             <a href="/Product/@Category" style="text-decoration: none; margin-top: 20px;">
-                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size24.ArrowCircleLeft())">Back to @Category</FluentButton>
+                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size24.ArrowCircleLeft())">@(Localizer["backTo"] + Category)</FluentButton>
             </a>
         </div>
     </div>
