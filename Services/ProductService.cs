@@ -50,7 +50,7 @@ namespace FluentBlazor_Project.Services
             ProductValidationHelper.EnsureSingleThumbnail(updateProduct.Images);
             ProductValidationHelper.EnsureValidImages(updateProduct.Images);
             using var _dbContext = CreateContext();
-
+            
             var existingProduct = await _dbContext.Products
                 .Include(p=>p.Images)
                 .FirstOrDefaultAsync(p=> p.Id == updateProduct.Id);
@@ -86,51 +86,52 @@ namespace FluentBlazor_Project.Services
                 isModified = true;
             }
 
-            var newImages = updateProduct.Images.Where(img => img.Id == Guid.Empty).ToList();
-            var existingUpdatedImages = updateProduct.Images.Where(img => img.Id != Guid.Empty).ToList();
             
-            var existingIds = existingUpdatedImages.Select(img => img.Id).ToHashSet();
-            // Database Images that are not in the updated list of images are sent into ImagesToRemove List
-            var imagesToRemove = existingProduct.Images
-                .Where(img => !existingIds.Contains(img.Id))
-                .ToList();
+            List<string> imagePathsToDelete = new List<string>();
+
+                
+                var existingMap = existingProduct.Images.ToDictionary(img => img.Id);
+            
+
+                var imagesToRemove = existingProduct.Images
+                    .Where(e => !updateProduct.Images.Any(u => u.Id == e.Id))
+                    .ToList();
 
 
-             List<string> imagePathsToDelete = new List<string>();
             foreach (var image in imagesToRemove)
             {
                 imagePathsToDelete.Add(image.ImagePath);
                 _dbContext.ProductImages.Remove(image);
-                isModified = true;
+                isModified = true;  
             }
             
-            var existingMap = existingProduct.Images.ToDictionary(img => img.Id);
+           
 
             foreach (var incomingImage in updateProduct.Images)
             {
-                if (incomingImage.Id == Guid.Empty)
+                if (existingMap.TryGetValue(incomingImage.Id, out var existing))
                 {
-                    incomingImage.ProductId = existingProduct.Id;
-                    existingProduct.Images.Add(incomingImage);
-                    isModified = true;
-                }
-                else
-                {
-                    
-
-                    if(existingMap.TryGetValue(incomingImage.Id, out var existing)
-                        && 
-                        existing.SelectedTag != incomingImage.SelectedTag)
+                    if (existing.SelectedTag != incomingImage.SelectedTag)
                     {
+
                         existing.SelectedTag = incomingImage.SelectedTag;
                         isModified = true;
                     }
                 }
+                else
+
+                {
+                    incomingImage.Product = null;
+                    incomingImage.ProductId = existingProduct.Id;
+                    _dbContext.ProductImages.Add(incomingImage);
+                    isModified = true;
+                }
+                
             }
 
-                if (isModified)
+            if (isModified)
             {
-                await _dbContext.SaveChangesAsync();
+               await _dbContext.SaveChangesAsync();
 
                 foreach (var path in imagePathsToDelete)
                 {

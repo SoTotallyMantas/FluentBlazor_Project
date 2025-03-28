@@ -9,7 +9,8 @@
         public enum Tag
         {
             Thumbnail = 1,
-            Extras = 2
+            Extras = 2,
+            Temp = 3 
 
         }
         public required Tag SelectedTag { get; set; } = Tag.Extras;

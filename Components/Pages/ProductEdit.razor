@@ -5,6 +5,7 @@
 @using FluentBlazor_Project.Interface
 @inject IProductService _productService
 @using FluentBlazor_Project.HelperFunctions
+@implements IDisposable
 @rendermode InteractiveServer
 
 @if (product == null)
@@ -13,6 +14,7 @@
 }
 else
 {
+
     <h2>Product @product.Name Editing</h2>
     <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px;">
         <div>
@@ -22,44 +24,82 @@ else
             <FluentTextArea Name="price" Rows="1" Cols="60" @bind-Value="@priceString" Label="Change price:" Required />
         </div>
         <div>
-            <FluentInputFile Id="file-uploader"
-            Mode="InputFileMode.Stream"
-            Accept="image/*"
-            @bind-ProgressPercent="@ProgressPercent"
-            OnCompleted="@OnCompletedAsync"
-            Style="height: 300px;">
-                <ChildContent>
-                    <label for="file-uploader">
-                        <FluentIcon Value="@(new Icons.Regular.Size24.ArrowUpload())" />
-                    </label>
-                    <div>
-                        Drag files here to upload product image
-                    </div>
-                    @if (!string.IsNullOrEmpty(imageBase64))
+            @{
+                // FluentInput File
+            }
+            <FluentInputFile @ref="@myFileUploader"
+            DragDropZoneVisible="false"
+            Mode="InputFileMode.SaveToTemporaryFolder"
+            Multiple="true"
+            AnchorId="MyUploadLoadingButton"
+            MaximumFileSize="@(100 * 1024 * 1024)"
+            Accept=".jpg, .png, .svg, .webp"
+            OnProgressChange="@(e =>
+                     {
+                         _formUploading = true;
+                         progressPercent = e.ProgressPercent;
+                         progressTitle = e.ProgressTitle;
+                     })"
+            OnCompleted="@OnCompleted" />
+
+            <FluentProgress Min="0" Max="100" Visible="@(progressPercent > 0)" Value="@progressPercent" />
+            <FluentLabel Alignment="HorizontalAlignment.Center">
+                @progressTitle
+            </FluentLabel>
+
+            <FluentButton Id="MyUploadLoadingButton" Loading="_formUploading" Appearance="Appearance.Accent">
+                Upload files
+            </FluentButton>
+
+            @if (product.Images.Any())
+            {
+                <h4>File(s) uploaded:</h4>
+                <ul>
+                    @foreach (var image in product.Images)
                     {
-                        <h4>Uploaded File:</h4>
-                        <img src="@imageBase64" alt="Uploaded product image" style="max-width: 20%; height: auto;" />
-                        <ul>
-                            @foreach (var file in Files)
+                        <li>
+                            <b>@image.SelectedTag</b>
+                            @image.ImagePath 
+                            @if (image.ImagePath != null)
                             {
-                                <li>
-                                    <b>@file.Name</b>
-                                    @if (!string.IsNullOrEmpty(file.ErrorMessage))
-                                    {
-                                        <span> - Error: @file.ErrorMessage</span>
-                                    }
-                                </li>
+
+
+
+                                <img src="@image.ImagePath" style="height: 125px;width:125px"/>
+
+                                <FluentButton Appearance="Appearance.Accent" OnClick="@(() => DeleteImage(image.Id))">
+                                    Delete Image
+                                </FluentButton>
                             }
-                        </ul>
+                        </li>
                     }
-                </ChildContent>
-            </FluentInputFile>
+                </ul>
+            }
+            @{
+                // FluentInput File
+            }
         </div>
     </div>
     <FluentTextArea Name="description" Rows="18" Cols="110" @bind-Value="product.Description" Label="Change description" Style="margin-right: 20px" />
 
-    <FluentButton Appearance="Appearance.Accent" Style="width: 75px">Save</FluentButton>
-    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">Cancel</FluentButton>
+    // Image that will be thumbnail selection
+
+    <FluentSelect TOption="ProductImages"
+    Label="Select which image will be a thumbail"
+    Items="@product.Images"
+    Id="thumbnail-listbox"
+    Width="200px"
+    Height="250px"
+    Placeholder="Make a selection..."
+    OptionValue="@(t => t.Id.ToString())"
+    OptionText="@(t => t.ImagePath + ", " + t.SelectedTag)"
+    @bind-Value="@SelectedThumbnailValue"
+    @bind-SelectedOption="@SelectedThumbnailOption" />
+    <p>
+        Selected New/Old Thumbnail image: @SelectedThumbnailValue <br/>
+    </p>
+    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" OnClick="@SaveChanges">Save</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handleCancel">Cancel</FluentButton>
 }
 
 @code {
@@ -67,8 +107,14 @@ else
 
     private Product? product;
     private string priceString;
-    private string? imageBase64;
+    // Selected Thumbnail Image 
+    ProductImages? SelectedThumbnailOption;
+    // Selection of Thumbnail value 
+    string? SelectedThumbnailValue;
+    // Helper function for Image uploading
     private FileHelper imageUpload = new FileHelper();
+
+
     protected override async Task OnInitializedAsync()
     {
         Guid.TryParse(Id, out var parsedId);
@@ -82,39 +128,127 @@ else
         {
             priceString = product.Price.ToString();
         }
+        SelectedThumbnailValue = product.Images
+                                 .Where(i => i.SelectedTag == ProductImages.Tag.Thumbnail)
+                                 .Select(i => i.Id)
+                                 .FirstOrDefault()
+                                 .ToString();
     }
+    // Fluent Input Logic
+    bool _formUploading;
+    FluentInputFile? myFileUploader = default!;
+    int? progressPercent;
+    string? progressTitle;
 
-    private int ProgressPercent = 0;
-    private List<FluentInputFileEventArgs> Files = [];
+    FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
+    List<string> imageSrc = new List<string>();
+    List<byte[]> imageSaveData = new List<byte[]>();
 
-    private async Task OnCompletedAsync(IEnumerable<FluentInputFileEventArgs> files)
+    async Task OnCompleted(IEnumerable<FluentInputFileEventArgs> files)
     {
-        Files = files.ToList();
-        ProgressPercent = 0;
 
-        if (Files.Any() && product != null)
+        var  newFiles = files.ToArray();
+        progressPercent = myFileUploader!.ProgressPercent;
+        progressTitle = myFileUploader!.ProgressTitle;
+
+        imageSaveData.Clear();
+        imageSrc.Clear();
+        foreach (var file in newFiles)
         {
-            var file = Files.First();
-            if (file.Stream != null)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await file.Stream.CopyToAsync(memoryStream);
-                    var imageBytes = memoryStream.ToArray();
-                    imageBase64 = $"data:{file.ContentType};base64,{Convert.ToBase64String(imageBytes)}";
-                }
-            }
+
+            //Console.WriteLine(file.LocalFile?.ToString());
+
+            // Read Temp Files to byte[] so that we can display and later save if we want to
+            byte[] imageData = await File.ReadAllBytesAsync(file.LocalFile?.ToString());
+            imageSaveData.Add(imageData);
+            // Convert to base64String so that we can actually display it 
+            string base64String = Convert.ToBase64String(imageData);
+            imageSrc.Add($"data:{file.ContentType};base64,{base64String}");
+
+
         }
+        // Save Permament Image due to being dumb.....
+        List<string> savedProductImagesPaths =  await imageUpload.SaveFluentInputToFile(newFiles, imageSaveData);
+        foreach(string savedPath in savedProductImagesPaths)
+        {
+            var newImage = new ProductImages
+                {
+                    Id = Guid.NewGuid(),
+                    Product = product,
+                    ProductId = product.Id,
+                    ImagePath = savedPath,
+                    SelectedTag = ProductImages.Tag.Temp
+                };
+            product.Images.Add(newImage);
+
+        }
+        _formUploading = false;
+        StateHasChanged();
     }
+    //
 
     public async Task SaveChanges()
     {
-       await imageUpload.SaveImageStreamToFile(Files);
 
+        foreach(var image in product?.Images)
+        {
+            image.SelectedTag = ProductImages.Tag.Extras;
+        }
+        if(Guid.TryParse(SelectedThumbnailValue, out var SelectedId))
+        {
+            var selectedImage = product.Images.FirstOrDefault(i => i.Id == SelectedId);
+            if(selectedImage != null)
+            {
+                selectedImage.SelectedTag = ProductImages.Tag.Thumbnail;
+            }
+        }
+
+        Console.WriteLine("START OF SERVICE");
+        await _productService.EditProductAsync(product);
+        Console.WriteLine("END OF SERVICE");
+        //Navigation.NavigateTo("/admin");
     }
 
-    private void handelCancel()
+    private void DeleteImage(Guid imageId)
     {
+        var imageToRemove = product.Images.FirstOrDefault(img => img.Id == imageId);
+        if(imageToRemove != null)
+        {
+            product.Images.Remove(imageToRemove);
+        }
+    }
+    private void handleCancel()
+    {
+        if(product?.Images !=null)
+        {
+            var tempImages = product?.Images
+                             .Where(i => i.SelectedTag == ProductImages.Tag.Temp)
+                             .ToList();
+            foreach(var temp in tempImages)
+            {
+                product?.Images.Remove(temp);
+                FileHelper.TryDeleteImage(temp.ImagePath);
+            }
+        }
         Navigation.NavigateTo("/admin");
     }
+    public void Dispose()
+    {
+        if (product?.Images != null)
+        {
+            var tempImages = product.Images
+                .Where(i => i.SelectedTag == ProductImages.Tag.Temp)
+                .ToList();
+
+            foreach (var temp in tempImages)
+            {
+                FileHelper.TryDeleteImage(temp.ImagePath);
+            }
+
+            product.Images.RemoveAll(i => i.SelectedTag == ProductImages.Tag.Temp);
+        }
+
+        Console.WriteLine("Temp files disposes.");
+    }
+   
 }

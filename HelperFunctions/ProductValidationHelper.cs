@@ -11,8 +11,7 @@ namespace FluentBlazor_Project.HelperFunctions
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            if (product.Images == null || !product.Images.Any())
-                throw new ArgumentNullException(nameof(product));
+            
         }
 
         public static void EnsureValidImages(List<ProductImages> images)
