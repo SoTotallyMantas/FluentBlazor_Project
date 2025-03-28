@@ -32,16 +32,18 @@ namespace FluentBlazor_Project.Services
             ProductValidationHelper.EnsureSingleThumbnail(product.Images);
 
                 using var _dbContext = CreateContext();
-                
-                await _dbContext.Set<Product>().AddAsync(product);
-                await _dbContext.SaveChangesAsync();
-               
+
+
+                    if (product.Id != Guid.Empty)
+                    {
+                        product.Id = Guid.NewGuid();
+                    }
                     foreach (var image in product.Images)
                     {
                         image.ProductId = product.Id;
                     }
-                    _dbContext.ProductImages.AddRange(product.Images);
-                    await _dbContext.SaveChangesAsync();
+            await _dbContext.Set<Product>().AddAsync(product);
+            await _dbContext.SaveChangesAsync();
 
         }
         public async Task EditProductAsync(Product updateProduct)
