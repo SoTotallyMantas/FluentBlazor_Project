@@ -13,8 +13,8 @@
             <span>Electromark</span>
             <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Center">
                 <FluentSelect TOption=string Width="150px" @bind-Value="CultureString">
-                    <FluentOption value="en-US">English</FluentOption>
-                    <FluentOption value="lt">Lithuanian</FluentOption>
+                    <FluentOption value="en-US">@Localizer["english"]</FluentOption>
+                    <FluentOption value="lt">@Localizer["lithuanian"]</FluentOption>
                 </FluentSelect>
             </FluentStack>
             @if (RendererInfo.IsInteractive && _isUserAuthenticated)

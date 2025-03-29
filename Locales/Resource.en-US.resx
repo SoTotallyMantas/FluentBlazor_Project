@@ -234,4 +234,16 @@
   <data name="cardNumber" xml:space="preserve">
     <value>Card number</value>
   </data>
+  <data name="english" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="lithuanian" xml:space="preserve">
+    <value>Lithuanian</value>
+  </data>
+  <data name="paymentDetails" xml:space="preserve">
+    <value>Payment details</value>
+  </data>
+  <data name="price" xml:space="preserve">
+    <value>Price:</value>
+  </data>
 </root>

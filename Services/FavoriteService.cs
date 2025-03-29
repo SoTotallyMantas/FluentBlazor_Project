@@ -30,6 +30,7 @@ namespace FluentBlazor_Project.Services
         {
             var _dbContext = CreateContext();
             await _dbContext.Favorites.AddAsync(favorite);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task RemoveFromFavorite(Guid favoriteId , string UserId)

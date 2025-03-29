@@ -2,7 +2,10 @@
 @using FluentBlazor_Project.Data.Models
 @using FluentBlazor_Project.Interface
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IProductService _productService
+@inject IFavoriteService FavoriteService
+@inject ICartService _cartService
 @inject IStringLocalizer<Resource> Localizer
 
 <div style="margin: 0 auto; padding: 20px;">
@@ -21,10 +24,22 @@
             <h1 style="font-size: 2rem; margin-bottom: 15px; font-weight: 600;">@product?.Name</h1>
             <p><strong>@Localizer["category"]</strong> @product?.Category</p>
             <p><strong>@Localizer["type"]</strong> @product?.Type</p>
-            <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 15px;">$@product?.Price</p>
+            <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 15px;">€@product?.Price</p>
             <div style="display: flex; gap: 15px; margin-bottom: 20px;">
                 <FluentNumberField @bind-Value="Quantity" Label=@Localizer["quantity"] Style="width: 20%"/>
-                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size24.Cart())" Style="width: 75%">@Localizer["addToCart"]</FluentButton>
+                <FluentButton Appearance="Appearance.Accent" 
+                    IconStart="@(new Icons.Regular.Size24.Cart())" 
+                    Style="width: 65%;"
+                    OnClick="addToCard"
+                >
+                    @Localizer["addToCart"]
+                </FluentButton>
+                <FluentButton 
+                    Appearance="Appearance.Accent"
+                    BackgroundColor="@(IsFavorite ? "#CCCCCC" : "#FF3333")"
+                    IconEnd="@(IsFavorite ? new Icons.Regular.Size24.HeartBroken() : new Icons.Regular.Size24.Heart())"
+                    Style="width: 10%"
+                    OnClick=(ToggleFavorite) />
             </div>
             <FluentDivider />
 
@@ -59,21 +74,86 @@
     [Parameter] public string Category { get; set; } = string.Empty;
     [Parameter] public string Id { get; set; } = string.Empty;
     int Quantity { get; set; } = 1;
-
     private Product product;
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; }
+
+    private bool IsFavorite { get; set; } = false;
+    private Guid FavoriteId { get; set; }
+
+    private bool _isUserAuthenticated;
     protected override async Task OnInitializedAsync()
     {
-       
-        if(Guid.TryParse(Id,out var ParsedId))
+        var authState = await AuthStateTask;
+        var user = authState.User;
+        var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
+        _isUserAuthenticated = user.Identity?.IsAuthenticated ?? true;
+
+        if (Guid.TryParse(Id, out var ParsedId))
         {
-            
             product = await _productService.RetrieveProductByIndexAsync(ParsedId);
         }
+
         if (product == null)
         {
-            
-           Navigation.NavigateTo("/404");
+            Navigation.NavigateTo("/404");
+            return;
+        }
+
+        var favorites = await FavoriteService.GetUserFavoritesAsync(userStringId);
+        var favoriteEntry = favorites.FirstOrDefault(f => f.ProductId == product.Id);
+
+        if (favoriteEntry != null)
+        {
+            IsFavorite = true;
+            FavoriteId = favoriteEntry.Id;
+        }
+    }
+
+    private async Task ToggleFavorite()
+    {
+        var authState = await AuthStateTask;
+        var user = authState.User;
+        var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
+        if (IsFavorite)
+        {
+            await FavoriteService.RemoveFromFavorite(FavoriteId, userStringId);
+            IsFavorite = false;
+            FavoriteId = Guid.Empty;
+        }
+        else
+        {
+            var newFavorite = new Favorites { Id = Guid.NewGuid(), UserId = userStringId, ProductId = product.Id };
+            await FavoriteService.AddToFavorites(newFavorite);
+            IsFavorite = true;
+            FavoriteId = newFavorite.Id;
+        }
+    }
+
+    private async Task addToCard()
+    {
+        var authState = await AuthStateTask;
+        var user = authState.User;
+        var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
+        if (userStringId != null)
+        {
+            await _cartService.AddCartItem(userStringId, product.Id, 1);
+            await LoadCartItems();
+        }
+    }
+
+    private List<CartItem> cartItems = new();
+    private async Task LoadCartItems()
+    {
+        var authState = await AuthStateTask;
+        var user = authState.User;
+        var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
+        if (userStringId != null)
+        {
+            var cart = await _cartService.GetOrCreateUserCartAsync(userStringId);
+            cartItems = cart.CartItems.ToList();
+            StateHasChanged();
         }
     }
 }

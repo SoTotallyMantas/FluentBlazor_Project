@@ -234,4 +234,16 @@
   <data name="cardNumber" xml:space="preserve">
     <value>Kortelės numeris</value>
   </data>
+  <data name="english" xml:space="preserve">
+    <value>Angliškai</value>
+  </data>
+  <data name="lithuanian" xml:space="preserve">
+    <value>Lietuviškai</value>
+  </data>
+  <data name="paymentDetails" xml:space="preserve">
+    <value>Apmokėjimo detalės</value>
+  </data>
+  <data name="price" xml:space="preserve">
+    <value>Kaina</value>
+  </data>
 </root>
