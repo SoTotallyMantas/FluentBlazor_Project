@@ -30,6 +30,11 @@ namespace FluentBlazor_Project.Services
 
                         await _userManager.AddToRoleAsync(await _userManager.FindByIdAsync(UserId), "user");
                     }
+                    else
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole { Name = "user" });
+                        await _userManager.AddToRoleAsync(await _userManager.FindByIdAsync(UserId), "user");
+                    }
                 }
                 else
                 {
