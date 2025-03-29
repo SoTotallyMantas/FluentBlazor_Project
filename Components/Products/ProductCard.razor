@@ -13,12 +13,14 @@
         <a href="/Product/@Category/@Id" style="width:75%;">
             <FluentButton Appearance="Appearance.Accent" Style="width:100%">@Localizer["moreDetail"]</FluentButton>
         </a>
-        <FluentButton Appearance="Appearance.Accent" BackgroundColor="#7ED273" IconEnd="@(new Icons.Regular.Size24.Cart())" Style="width:10%" onclick="@addToCard" />
-        <FluentButton Appearance="Appearance.Accent"
-            BackgroundColor="@(IsFavorite ? "#CCCCCC" : "#FF3333")"
-            IconEnd="@(IsFavorite ? new Icons.Regular.Size24.HeartBroken() : new Icons.Regular.Size24.Heart())"
-            Style="width: 10%"
-            OnClick=(ToggleFavorite) />
+        <AuthorizeView Roles="user">
+            <FluentButton Appearance="Appearance.Accent" BackgroundColor="#7ED273" IconEnd="@(new Icons.Regular.Size24.Cart())" Style="width:10%" onclick="@addToCard" />
+            <FluentButton Appearance="Appearance.Accent"
+                BackgroundColor="@(IsFavorite ? "#CCCCCC" : "#FF3333")"
+                IconEnd="@(IsFavorite ? new Icons.Regular.Size24.HeartBroken() : new Icons.Regular.Size24.Heart())"
+                Style="width: 10%"
+                OnClick=(ToggleFavorite) />
+        </AuthorizeView>
     </FluentStack>
 </FluentCard>
 

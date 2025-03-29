@@ -27,20 +27,21 @@
             <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 15px;">€@product?.Price</p>
             <div style="display: flex; gap: 15px; margin-bottom: 20px;">
                 <AuthorizeView Roles="user">
-                <FluentNumberField @bind-Value="Quantity" Label=@Localizer["quantity"] Style="width: 20%"/>
-                <FluentButton Appearance="Appearance.Accent" 
-                    IconStart="@(new Icons.Regular.Size24.Cart())" 
-                    Style="width: 65%;"
-                    OnClick="addToCard"
-                >
-                    @Localizer["addToCart"]
-                </FluentButton>
-                <FluentButton 
-                    Appearance="Appearance.Accent"
-                    BackgroundColor="@(IsFavorite ? "#CCCCCC" : "#FF3333")"
-                    IconEnd="@(IsFavorite ? new Icons.Regular.Size24.HeartBroken() : new Icons.Regular.Size24.Heart())"
-                    Style="width: 10%"
-                    OnClick=(ToggleFavorite) />
+                    <FluentNumberField @bind-Value="Quantity" Label=@Localizer["quantity"] Style="width: 20%"/>
+                    <FluentButton Appearance="Appearance.Accent" 
+                        IconStart="@(new Icons.Regular.Size24.Cart())" 
+                        Style="width: 65%;"
+                        OnClick="addToCard"
+                    >
+                        @Localizer["addToCart"]
+                    </FluentButton>
+                    <FluentButton 
+                        Appearance="Appearance.Accent"
+                        BackgroundColor="@(IsFavorite ? "#CCCCCC" : "#FF3333")"
+                        IconEnd="@(IsFavorite ? new Icons.Regular.Size24.HeartBroken() : new Icons.Regular.Size24.Heart())"
+                        Style="width: 10%"
+                        OnClick=(ToggleFavorite) />
+                </AuthorizeView>
             </div>
             <FluentDivider />
 
