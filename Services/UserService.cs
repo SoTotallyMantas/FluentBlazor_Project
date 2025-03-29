@@ -25,7 +25,11 @@ namespace FluentBlazor_Project.Services
                 var UserList = await _userManager.GetUsersInRoleAsync("administrator");
                 if(UserList.Count > 0)
                 {
-                    return;
+                    if (await _roleManager.RoleExistsAsync("user"))
+                    {
+
+                        await _userManager.AddToRoleAsync(await _userManager.FindByIdAsync(UserId), "user");
+                    }
                 }
                 else
                 {
