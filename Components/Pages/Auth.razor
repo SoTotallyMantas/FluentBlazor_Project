@@ -1,7 +1,11 @@
 ﻿@page "/auth"
 
-@using Microsoft.AspNetCore.Authorization
+@using FluentBlazor_Project.Data
+@using FluentBlazor_Project.Data.DTO
+@using FluentBlazor_Project.Interface
 
+@using Microsoft.AspNetCore.Authorization
+@inject IUserService _userService
 @attribute [Authorize]
 
 <PageTitle>Auth</PageTitle>
@@ -11,3 +15,13 @@
 <AuthorizeView>
     Hello @context.User.Identity?.Name!
 </AuthorizeView>
+@code {
+    List<UserDisplay> usersList;
+
+    protected override async Task OnInitializedAsync() {
+        usersList = await _userService.GetUsers();
+       
+        Console.WriteLine(" asd");
+    }
+
+}

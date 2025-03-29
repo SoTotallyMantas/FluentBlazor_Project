@@ -5,9 +5,10 @@
 @using FluentBlazor_Project.Interface
 @inject IProductService _productService
 @using FluentBlazor_Project.HelperFunctions
+@using Microsoft.AspNetCore.Authorization
 @implements IDisposable
 @rendermode InteractiveServer
-
+@attribute [Authorize(Roles="administrator")]
 @if (product == null)
 {
     <p>Loading product...</p>

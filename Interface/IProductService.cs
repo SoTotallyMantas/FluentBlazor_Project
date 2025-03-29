@@ -10,5 +10,6 @@ namespace FluentBlazor_Project.Interface
         Task<List<Product>> GetProductByCategoryAsync(string category);
         Task<List<Product>> GetProductByFilterAsync(ProductFilterOptions options);
         Task EditProductAsync(Product updateProduct);
+        Task ToggleSoftDeletionProductAsync(Guid productId);
     }
 }

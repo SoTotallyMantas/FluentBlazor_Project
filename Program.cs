@@ -40,8 +40,8 @@ namespace FluentBlazor_Project
                  builder.Services.AddAuthentication()
                 .AddGoogle(googleOptions =>
                 {
-                    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-                    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+                    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
+                    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
 
                 });
 
@@ -70,9 +70,12 @@ namespace FluentBlazor_Project
                 options.Password.RequireUppercase = false;
 
             })
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddSignInManager()
                 .AddDefaultTokenProviders();
+                
+                
 
             builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
