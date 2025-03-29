@@ -38,40 +38,47 @@ namespace FluentBlazor_Project.Services
 
         public async Task AddCartItem(string UserId, Guid productId,int quantity)
         {
-            using var _dbContext = CreateContext();
-            quantity = Math.Max(1, quantity);
-
-            var cart = await _dbContext.Carts
-                .Include(c => c.CartItems)
-                .ThenInclude(ci => ci.Product)
-                .FirstOrDefaultAsync(c => c.UserId == UserId);
-
-            var existingItem = cart.CartItems
-                .FirstOrDefault(ci => ci.ProductId == productId);
-
-            if (existingItem != null)
+            try
             {
-                existingItem.Quantity += quantity;
-            }
-            else
-            {
-                 var product = await _dbContext.Products
-                    .FirstOrDefaultAsync(p => p.Id == productId && p.IsDeleted == false);
-                if(product == null)
+                using var _dbContext = CreateContext();
+                quantity = Math.Max(1, quantity);
+
+                var cart = await _dbContext.Carts
+                    .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.Product)
+                    .FirstOrDefaultAsync(c => c.UserId == UserId);
+
+                var existingItem = cart.CartItems
+                    .FirstOrDefault(ci => ci.ProductId == productId);
+
+                if (existingItem != null)
                 {
-                    throw new InvalidOperationException("Product not found");
+                    existingItem.Quantity += quantity;
                 }
-
-                cart.CartItems.Add(new CartItem
+                else
                 {
-                    Cart = cart,
-                    CartId = cart.Id,
-                    ProductId = productId,
-                    Quantity = quantity
-                });
+                    var product = await _dbContext.Products
+                       .FirstOrDefaultAsync(p => p.Id == productId && p.IsDeleted == false);
+                    if (product == null)
+                    {
+                        throw new InvalidOperationException("Product not found");
+                    }
 
+                    cart.CartItems.Add(new CartItem
+                    {
+                        Cart = cart,
+                        CartId = cart.Id,
+                        ProductId = productId,
+                        Quantity = quantity
+                    });
+
+                }
+                await _dbContext.SaveChangesAsync();
             }
-            await _dbContext.SaveChangesAsync();
+            catch(Exception e)
+            {
+                Console.WriteLine("Error Adding to car:", e.Message);
+            }
         }
 
         public async Task RemoveFromCartAsync(string UserId, Guid productId)
@@ -138,7 +145,15 @@ namespace FluentBlazor_Project.Services
         {
             using var _dbContext = CreateContext();
 
-            var cart = await GetOrCreateUserCartAsync(userId);
+            var cart = await _dbContext.Carts
+                .Include(c => c.CartItems)
+                .ThenInclude(ci => ci.Product)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (cart == null)
+            {
+                throw new InvalidOperationException("Cart not found for the user.");
+            }
 
             _dbContext.CartItems.RemoveRange(cart.CartItems);
             await _dbContext.SaveChangesAsync();

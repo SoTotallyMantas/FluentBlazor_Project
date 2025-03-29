@@ -89,10 +89,10 @@ namespace FluentBlazor_Project.Services
                     PurchaseDate = DateTime.Now,
 
                 };
-                
 
+                _dbContext.Purchases.Add(purchase);
 
-                var purchaseItems = new List<PurchaseItem>();
+            var purchaseItems = new List<PurchaseItem>();
                 foreach (KeyValuePair<Guid, int> entry in ProductQuantityPair)
                 {
                     PurchaseItem purchaseItemInsertion = new PurchaseItem
@@ -106,7 +106,7 @@ namespace FluentBlazor_Project.Services
 
                 }
                 _dbContext.PurchaseItems.AddRange(purchaseItems);
-                _dbContext.Purchases.Add(purchase);
+                
                 await _dbContext.SaveChangesAsync();
 
         }

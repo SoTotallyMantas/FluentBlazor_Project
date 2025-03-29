@@ -21,7 +21,11 @@
                 <FluentNavLink Href="Product/Storage">Storage</FluentNavLink>
             </FluentNavGroup>
             <FluentNavLink Href="auth" Icon="@(new Icons.Regular.Size20.LockClosedKey())" IconColor="Color.Accent">@Localizer["authReq"]</FluentNavLink>
+            <AuthorizeView Roles="administrator">
+                <FluentNavLink Href="/admin">Admin Menu</FluentNavLink>
+            </AuthorizeView>
             <AuthorizeView>
+                
                 <Authorized>
                     <FluentNavLink Href="Account/Manage">@context.User.Identity?.Name</FluentNavLink>
                     <form action="Account/Logout" method="post">
@@ -30,11 +34,13 @@
                         <FluentButton Type="ButtonType.Submit" Style="width: 100%;">@Localizer["logout"]</FluentButton>
                     </form>
                 </Authorized>
+                
                 <NotAuthorized>
                     <FluentNavLink Href="Account/Register">@Localizer["register"]</FluentNavLink>
                     <FluentNavLink Href="Account/Login">@Localizer["login"]</FluentNavLink>
                 </NotAuthorized>
             </AuthorizeView>
+
         </FluentNavMenu>
     </nav>
 </div>

@@ -17,9 +17,10 @@
                     <FluentOption value="lt">@Localizer["lithuanian"]</FluentOption>
                 </FluentSelect>
             </FluentStack>
-            @if (RendererInfo.IsInteractive && _isUserAuthenticated)
+            <AuthorizeView Roles="user">
+            @if (RendererInfo.IsInteractive)
             {
-                <FluentButton id="cart-button" class="@(_isUserAuthenticated ? "" : "hidden")" IconStart="@(new Icons.Regular.Size24.Cart().WithColor(Color.Warning))" OnClick="@TopRightButtonClicked">
+                <FluentButton id="cart-button" IconStart="@(new Icons.Regular.Size24.Cart().WithColor(Color.Warning))" OnClick="@TopRightButtonClicked">
                     @Localizer["cart"]
                 </FluentButton>
                 <FluentPopover Style="width: 450px; color: black;" VerticalThreshold="170" AnchorId="cart-button" @bind-Open="_visible">
@@ -62,6 +63,7 @@
                     </Footer>
                 </FluentPopover>
             }
+            </AuthorizeView>
         </FluentStack>
     </FluentHeader>
     <FluentStack Class="main" Orientation="Orientation.Horizontal" Width="100%">
@@ -77,6 +79,7 @@
         <FluentSpacer />
         <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor" target="_blank">About Blazor</a>
     </FluentFooter>
+    <FluentDialogProvider />
 </FluentLayout>
 
 <div id="blazor-error-ui" data-nosnippet>
