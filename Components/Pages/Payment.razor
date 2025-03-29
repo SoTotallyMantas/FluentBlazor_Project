@@ -4,6 +4,7 @@
 @inject NavigationManager Navigation
 @inject ICartService CartService
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IPurchaseService PurchaseService
 @inject IStringLocalizer<Resource> Localizer
 
 <h3>@Localizer["payment"]</h3>
@@ -50,11 +51,11 @@
                     <span>@Localizer["total"]</span>
                     <strong>€@CalculateTotal()</strong>
                 </FluentStack>
-                <FluentButton Appearance="Appearance.Accent" Style="align-self: flex-end; width:75%; margin-top:10px;">@Localizer["payNow"]</FluentButton>
+                <FluentButton Appearance="Appearance.Accent" OnClick="ProcessPurchase" Style="align-self: flex-end; width:75%; margin-top:10px;">@Localizer["payNow"]</FluentButton>
             </FluentStack>
         </FluentCard>
     </FluentGridItem>
-    
+
     <FluentGridItem xs="12" sm="6">
         <FluentCard Style="padding: 20px;">
             <h4>@Localizer["shippingAddress"]</h4>
@@ -92,7 +93,7 @@
 
     private void inputValidation()
     {
-        
+
     }
     protected override async Task OnInitializedAsync()
     {
@@ -136,5 +137,17 @@
     {
         var price = CalculateTotal();
         return Math.Round(price * 0.21m, 2);
+    }
+
+    private async Task ProcessPurchase()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
+
+        if (userStringId != null)
+        {
+            await CartService.ClearCartAsync(userStringId);
+        }
     }
 }
