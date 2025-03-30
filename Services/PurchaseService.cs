@@ -81,16 +81,13 @@ namespace FluentBlazor_Project.Services
         public async Task CreateNewPurchase(string userId,Dictionary<Guid,int> ProductQuantityPair)
         {
             using var _dbContext = CreateContext();
-            
-            
                 var purchase = new Purchase
                 {
                     UserId = userId,
                     PurchaseDate = DateTime.Now,
 
                 };
-
-                _dbContext.Purchases.Add(purchase);
+            _dbContext.Purchases.Add(purchase);
 
             var purchaseItems = new List<PurchaseItem>();
                 foreach (KeyValuePair<Guid, int> entry in ProductQuantityPair)
@@ -105,13 +102,9 @@ namespace FluentBlazor_Project.Services
                     purchaseItems.Add(purchaseItemInsertion);
 
                 }
-                _dbContext.PurchaseItems.AddRange(purchaseItems);
+             _dbContext.PurchaseItems.AddRange(purchaseItems);
                 
-                await _dbContext.SaveChangesAsync();
-
+             await _dbContext.SaveChangesAsync();
         }
-
-
-
     }
 }

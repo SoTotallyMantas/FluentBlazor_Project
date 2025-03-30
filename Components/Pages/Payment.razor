@@ -1,6 +1,4 @@
 ﻿@page "/payment"
-@using FluentBlazor_Project.Data.Models
-@using FluentBlazor_Project.Interface
 @inject NavigationManager Navigation
 @inject ICartService CartService
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -51,7 +49,10 @@
                     <span>@Localizer["total"]</span>
                     <strong>€@CalculateTotal()</strong>
                 </FluentStack>
-                <FluentButton Appearance="Appearance.Accent" OnClick="ProcessPurchase" Style="align-self: flex-end; width:75%; margin-top:10px;">@Localizer["payNow"]</FluentButton>
+                
+                <FluentButton Appearance="Appearance.Accent" OnClick="ProcessPurchase" Style="align-self: flex-end; width:75%; margin-top:10px;">
+                    @Localizer["payNow"]
+                </FluentButton>
             </FluentStack>
         </FluentCard>
     </FluentGridItem>
@@ -144,10 +145,11 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
-
-        if (userStringId != null)
-        {
-            await CartService.ClearCartAsync(userStringId);
-        }
+        var productQuantityPair = cartItems.ToDictionary(item => item.ProductId, item => item.Quantity);
+        
+        await PurchaseService.CreateNewPurchase(userStringId, productQuantityPair);
+        await CartService.ClearCartAsync(userStringId);
+        
+        Navigation.NavigateTo("/");
     }
 }
