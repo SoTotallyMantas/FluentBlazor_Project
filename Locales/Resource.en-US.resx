@@ -246,4 +246,31 @@
   <data name="price" xml:space="preserve">
     <value>Price:</value>
   </data>
+  <data name="noFavorite" xml:space="preserve">
+    <value>There's no favorite products selected</value>
+  </data>
+  <data name="profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="favorites" xml:space="preserve">
+    <value>Favorite products</value>
+  </data>
+  <data name="purchaseHistory" xml:space="preserve">
+    <value>Purchase history</value>
+  </data>
+  <data name="purchaseDate" xml:space="preserve">
+    <value>Purchase date:</value>
+  </data>
+  <data name="itemsPurchased" xml:space="preserve">
+    <value>Purchased items</value>
+  </data>
+  <data name="totalPrice" xml:space="preserve">
+    <value>Total price:</value>
+  </data>
+  <data name="actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="noPurchase" xml:space="preserve">
+    <value>There's no purchases made</value>
+  </data>
 </root>

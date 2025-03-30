@@ -244,6 +244,33 @@
     <value>Apmokėjimo detalės</value>
   </data>
   <data name="price" xml:space="preserve">
-    <value>Kaina</value>
+    <value>Kaina:</value>
+  </data>
+  <data name="noFavorite" xml:space="preserve">
+    <value>Nėra pasirinktų mėgstamų prekių</value>
+  </data>
+  <data name="profile" xml:space="preserve">
+    <value>Profilis</value>
+  </data>
+  <data name="favorites" xml:space="preserve">
+    <value>Mėgstamos prekės</value>
+  </data>
+  <data name="purchaseHistory" xml:space="preserve">
+    <value>Pirkinių istorija</value>
+  </data>
+  <data name="purchaseDate" xml:space="preserve">
+    <value>Pirkimo data:</value>
+  </data>
+  <data name="itemsPurchased" xml:space="preserve">
+    <value>Nusipirktos prekės</value>
+  </data>
+  <data name="totalPrice" xml:space="preserve">
+    <value>Iš viso sumokėta:</value>
+  </data>
+  <data name="actions" xml:space="preserve">
+    <value>Veiksmas</value>
+  </data>
+  <data name="noPurchase" xml:space="preserve">
+    <value>Nėra atliktų pirkimų</value>
   </data>
 </root>

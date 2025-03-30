@@ -20,10 +20,15 @@
                 <FluentNavLink Href="Product/RAM">RAM memory</FluentNavLink>
                 <FluentNavLink Href="Product/Storage">Storage</FluentNavLink>
             </FluentNavGroup>
-            <FluentNavLink Href="auth" Icon="@(new Icons.Regular.Size20.LockClosedKey())" IconColor="Color.Accent">@Localizer["authReq"]</FluentNavLink>
+
+            <AuthorizeView Roles="user">
+                <FluentNavLink Href="profile" Icon="@(new Icons.Regular.Size20.Person())" IconColor="Color.Accent">@Localizer["profile"]</FluentNavLink>
+            </AuthorizeView>
+
             <AuthorizeView Roles="administrator">
                 <FluentNavLink Href="/admin">Admin Menu</FluentNavLink>
             </AuthorizeView>
+
             <AuthorizeView>
                 
                 <Authorized>

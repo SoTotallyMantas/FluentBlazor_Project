@@ -1,5 +1,96 @@
-﻿<h3>Profile</h3>
+﻿@page "/profile"
+@inject IStringLocalizer<Resource> Localizer
+@inject NavigationManager Navigation
+@inject IFavoriteService FavoriteService
+@inject IPurchaseService PurchaseService
+
+<h3>@Localizer["profile"]</h3>
+
+<FluentTabs style="margin-top: 20px;">
+    <FluentTab Label="@Localizer["favorites"]">
+        @if (userFavorites.Any())
+        {
+            <div style="display: flex; flex-wrap: wrap; gap: 16px; padding: 10px;">
+                @foreach (var product in userProducts)
+                {
+                    <ProductCard Id="@product.Id" Name="@product.Name" Price="@product.Price" Category="@product.Category" />
+                }
+            </div>
+        }
+        else
+        {
+            <p>@Localizer["noFavorite"]</p>
+        }
+    </FluentTab>
+    <FluentTab Label="@Localizer["purchaseHistory"]">
+        @if (userPurchases.Any())
+        {
+            @if (selectedPurchase != null && isDialogOpen)
+            {
+                <FluentDialog Label="Purchase Details" @bind-Open="@isDialogOpen">
+                    <p><strong>@Localizer["purchaseDate"]</strong> @selectedPurchase.PurchaseDate.ToString("yyyy-MM-dd")</p>
+                    <p><strong>@Localizer["itemsPurchased"]</strong></p>
+                    <ul>
+                        @foreach (var item in selectedPurchase.PurchaseItems)
+                        {
+                            <p>
+                                @item.Product.Name - @item.Product.Price€ (Quantity: @item.Quantity)
+                            </p>
+                        }
+                    </ul>
+                    <p><strong>@Localizer["totalPrice"]</strong> @(selectedPurchase.PurchaseItems.Sum(pi => pi.Product.Price * pi.Quantity))€</p>
+                    <div style="display: flex;margin-top: 5px; justify-content: flex-end;">
+                        <FluentButton Appearance="Appearance.Accent" IconEnd="@(new Icons.Regular.Size24.ArrowCircleRight())" OnClick="@CloseDialog" />
+                    </div>
+                </FluentDialog>
+            }
+
+            <FluentDataGrid Items="@userPurchases.AsQueryable()" Style="width: 50%" MultiLine="true">
+                <PropertyColumn Property="@(p => p.PurchaseDate)" Title="@Localizer["purchaseDate"]" Sortable="true" />
+                <TemplateColumn Title="@Localizer["actions"]">
+                    <FluentButton Style="width: 60px; height: 40px;"
+                                  Appearance="Appearance.Accent"
+                                  IconEnd="@(new Icons.Regular.Size20.ContentView())"
+                                  OnClick="(() => ShowPurchaseDetails(context))" />
+                </TemplateColumn>
+            </FluentDataGrid>
+        }
+        else
+        {
+            <p>@Localizer["noPurchase"]</p>
+        }
+    </FluentTab>
+</FluentTabs>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; }
+    private List<Product> userProducts = new();
+    private List<Favorites> userFavorites = new();
+    private List<Purchase> userPurchases = new();
+    private Purchase? selectedPurchase;
+    private bool isDialogOpen = false;
 
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await AuthStateTask;
+        var user = authState.User;
+        var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
+
+        userFavorites = await FavoriteService.GetUserFavoritesAsync(userStringId);
+        userProducts = userFavorites.Select(fav => fav.Product).ToList();
+        userPurchases = await PurchaseService.RetrieveUsersPurchases(userStringId);
+    }
+
+    private void ShowPurchaseDetails(Purchase purchase)
+    {
+        selectedPurchase = purchase;
+        isDialogOpen = true;
+    }
+
+    private void CloseDialog()
+    {
+        isDialogOpen = false;
+        selectedPurchase = null;
+    }
 }
