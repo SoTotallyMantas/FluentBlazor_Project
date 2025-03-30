@@ -1,5 +1,6 @@
 ﻿@page "/Product/{Category}/{Id}"
 @using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.Data.Models.ImageTables
 @using FluentBlazor_Project.Interface
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -17,7 +18,14 @@
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start;">
         <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #f5f5f5; display: flex; justify-content: center; align-items: center; height: 400px;">
-            <p style="color: #666;">[Image Placeholder for @product?.Name]</p>
+            @if(string.IsNullOrEmpty(imagePath))
+            {
+                <p style="color: #666;">[Image Placeholder for @product?.Name]</p>
+            }
+            else
+            {
+                <img src="@imagePath" style="color: #666;"/>
+            }
         </div>
 
         <div>
@@ -29,18 +37,18 @@
                 <AuthorizeView Roles="user">
                     <FluentNumberField @bind-Value="Quantity" Label=@Localizer["quantity"] Style="width: 20%"/>
                     <FluentButton Appearance="Appearance.Accent" 
-                        IconStart="@(new Icons.Regular.Size24.Cart())" 
-                        Style="width: 65%;"
-                        OnClick="addToCard"
+                    IconStart="@(new Icons.Regular.Size24.Cart())" 
+                    Style="width: 65%;"
+                    OnClick="addToCard"
                     >
                         @Localizer["addToCart"]
                     </FluentButton>
                     <FluentButton 
-                        Appearance="Appearance.Accent"
-                        BackgroundColor="@(IsFavorite ? "#CCCCCC" : "#FF3333")"
-                        IconEnd="@(IsFavorite ? new Icons.Regular.Size24.HeartBroken() : new Icons.Regular.Size24.Heart())"
-                        Style="width: 10%"
-                        OnClick=(ToggleFavorite) />
+                    Appearance="Appearance.Accent"
+                    BackgroundColor="@(IsFavorite ? "#CCCCCC" : "#FF3333")"
+                    IconEnd="@(IsFavorite ? new Icons.Regular.Size24.HeartBroken() : new Icons.Regular.Size24.Heart())"
+                    Style="width: 10%"
+                    OnClick=(ToggleFavorite) />
                 </AuthorizeView>
             </div>
             <FluentDivider />
@@ -83,7 +91,7 @@
 
     private bool IsFavorite { get; set; } = false;
     private Guid FavoriteId { get; set; }
-
+    public string imagePath { get; set; }
     private bool _isUserAuthenticated;
     protected override async Task OnInitializedAsync()
     {
@@ -95,6 +103,7 @@
         if (Guid.TryParse(Id, out var ParsedId))
         {
             product = await _productService.RetrieveProductByIndexAsync(ParsedId);
+            imagePath =product.Images.FirstOrDefault(i => i.SelectedTag == ProductImages.Tag.Thumbnail).ImagePath;
         }
 
         if (product == null)

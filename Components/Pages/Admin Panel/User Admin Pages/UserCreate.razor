@@ -1,5 +1,76 @@
-﻿<h3>UserCreate</h3>
+﻿@page "/createUser/"
+@inject NavigationManager Navigation
+@using FluentBlazor_Project.Data.DTO
+@using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.HelperFunctions
+@using FluentBlazor_Project.Interface
+@inject IUserService _userService
 
-@code {
+@if (user != null)
+{
+    <h2>User Create</h2>
+    <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="user.Name" Label="Change name:" Required />
+    <FluentTextArea Name="email" Rows="1" Cols="60" @bind-Value="user.Email" Label="Change email:" Required />
 
+    <FluentSelect Items=@comboBoxOptions
+    TOption="Option<string>"
+    Multiple=true
+    OptionText="@(i => i.Text)"
+    OptionValue="@(i => i.Value)"
+    OptionSelected="@(i => i.Selected)"
+    @bind-SelectedOptions="@selectedOptions" />
+
+    <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" Style="width: 75px">Save</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">Cancel</FluentButton>
+
+
+
+
+}
+
+@code
+{
+    [Parameter] public string Id { get; set; }
+    List<string> Roles;
+    private UserDisplay? user;
+    string? comboBoxValue;
+    List<Option<string>> comboBoxOptions;
+    IEnumerable<Option<string>>? selectedOptions;
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        Roles = _userService.GetRoles().Select(r => r.Name).ToList();
+        IList<String> userRoles = await _userService.GetUserRole(Id);
+        UserDisplay user = new()
+            {
+                Email = null,
+                Id = Guid.NewGuid().ToString(),
+                Name = null
+            };
+        comboBoxOptions = Roles.Select(r => new Option<string> { Value = r, Text = r}).ToList();
+
+        if (Roles == null)
+        {
+            Navigation.NavigateTo("/404");
+        }
+    }
+
+    private async void handleSave()
+    {
+        if (user != null)
+        {
+
+
+            Navigation.NavigateTo("/admin");
+        }
+    }
+
+
+    private void handelCancel()
+    {
+
+        Navigation.NavigateTo("/admin");
+
+    }
 }

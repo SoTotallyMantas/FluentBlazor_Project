@@ -1,6 +1,8 @@
 ﻿@page "/"
+@using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.Interface
 @inject IStringLocalizer<Resource> Localizer
-
+@inject ICategoryService _categoryService
 <PageTitle>Electromark</PageTitle>
 <h1>Electromark</h1>
 <FluentDivider />
@@ -19,9 +21,9 @@
 <h3 Style="margin-top:20px">@Localizer["homeCategory"]</h3>
 <div>
     <FluentStack HorizontalGap="30" Style="display:flex; justify-content:center">
-        @for (int i = 0; i <= 5; i++)
+        @foreach(Category category in categoriesDB)
         {
-            <CategoriesCard CardTitle=@title.ElementAt(i).ToString() CardCategory=@categories.ElementAt(i).ToString() />
+            <CategoriesCard CardTitle=@category.Title CardCategory=@category.CategoryName ImageUrl="@category.Images.ImagePath" />
         }
     </FluentStack>
     <FluentDivider />
@@ -31,7 +33,11 @@
 @code {
     public List<string> categories = ["PSU", "GPU", "RAM", "CPU", "MB", "Storage"];
     public List<string> title = ["Power Block", "Graphics Cards", "RAM memory", "Processors", "Motherboard", "Storage"];
-
+    List<Category> categoriesDB = new();
+    protected override async Task OnInitializedAsync()
+    {
+        categoriesDB = await _categoryService.GetCategoriesAsync();
+    }
     public string Height = "350px";
     public string Width = "1200px";
 }

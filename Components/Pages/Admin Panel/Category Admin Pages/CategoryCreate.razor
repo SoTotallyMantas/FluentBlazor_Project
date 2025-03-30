@@ -1,5 +1,175 @@
-﻿<h3>ProductCreate</h3>
+﻿@page "/createCategory"
+@inject NavigationManager Navigation
+@using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.HelperFunctions
+@using FluentBlazor_Project.Interface
+@using FluentBlazor_Project.Data.Models.ImageTables
+@inject ICategoryService _categoryService
+@implements IDisposable
+
+<h2>Category Creationg</h2>
+<FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="category.CategoryName" Label="Change name:" Required />
+<FluentTextArea Name="title" Rows="1" Cols="60" @bind-Value="category.Title" Label="Change title:" Required />
+<FluentTextArea Name="description" Rows="1" Cols="60" @bind-Value="category.Description" Label="Change description:" Required />
+@if (category.Images.ImagePath != null)
+{
+    <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" Style="width: 75px" OnClick="@handleSave">Save</FluentButton>
+}
+<FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">Cancel</FluentButton>
+
+
+<FluentInputFile @ref="@myFileUploader"
+DragDropZoneVisible="false"
+Mode="InputFileMode.SaveToTemporaryFolder"
+Multiple="true"
+AnchorId="MyUploadLoadingButton"
+MaximumFileSize="@(100 * 1024 * 1024)"
+Accept=".jpg, .png, .svg, .webp"
+OnProgressChange="@(e =>
+                     {
+                         _formUploading = true;
+                         progressPercent = e.ProgressPercent;
+                         progressTitle = e.ProgressTitle;
+                     })"
+OnCompleted="@OnCompleted" />
+
+<FluentProgress Min="0" Max="100" Visible="@(progressPercent > 0)" Value="@progressPercent" />
+<FluentLabel Alignment="HorizontalAlignment.Center">
+    @progressTitle
+</FluentLabel>
+
+<FluentButton Id="MyUploadLoadingButton" Loading="_formUploading" Appearance="Appearance.Accent">
+    Upload files
+</FluentButton>
+
+@if (category.Images.ImagePath !=null)
+{
+    <h4>File(s) uploaded:</h4>
+    <ul>
+
+        <li>
+
+            @category.Images.ImagePath
+            @if (category.Images.ImagePath != null)
+            {
+
+
+
+                <img src="@category.Images.ImagePath" style="height: 125px;width:125px" />
+
+
+                <p>"Upload Again to Replace Image"</p>
+
+
+            }
+        </li>
+
+    </ul>
+}
+
+
 
 @code {
 
+
+    private Category? category;
+    // Helper function for Image uploading
+    private FileHelper imageUpload = new FileHelper();
+    protected override async Task OnInitializedAsync()
+    {
+        category = new Category
+            {
+                CategoryName = null,
+                Description = null,
+                Id = Guid.NewGuid(),
+                Title = null,
+                Images = new CategoryImages()
+            };
+
+        if (category == null)
+        {
+            Navigation.NavigateTo("/404");
+        }
+    }
+
+    // Fluent Input Logic
+    bool _formUploading;
+    FluentInputFile? myFileUploader = default!;
+    int? progressPercent;
+    string? progressTitle;
+
+    FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
+    List<string> imageSrc = new List<string>();
+    List<byte[]> imageSaveData = new List<byte[]>();
+
+    async Task OnCompleted(IEnumerable<FluentInputFileEventArgs> files)
+    {
+
+        var newFiles = files.ToArray();
+        progressPercent = myFileUploader!.ProgressPercent;
+        progressTitle = myFileUploader!.ProgressTitle;
+
+        imageSaveData.Clear();
+        imageSrc.Clear();
+        foreach (var file in newFiles)
+        {
+
+            //Console.WriteLine(file.LocalFile?.ToString());
+
+            // Read Temp Files to byte[] so that we can display and later save if we want to
+            byte[] imageData = await File.ReadAllBytesAsync(file.LocalFile?.ToString());
+            imageSaveData.Add(imageData);
+            // Convert to base64String so that we can actually display it
+            string base64String = Convert.ToBase64String(imageData);
+            imageSrc.Add($"data:{file.ContentType};base64,{base64String}");
+            List<string> savedProductImagesPaths = await imageUpload.SaveFluentInputToFile(newFiles, imageSaveData);
+            category.Images.ImagePath = savedProductImagesPaths.First(u => u != null).ToString();
+            category.Images.CategoryId = category.Id;
+            category.Images.Category = category;
+
+
+
+
+        }
+        _formUploading = false;
+    }
+
+    private async void handleSave()
+    {
+        if (category != null)
+        {
+            if(category.Images.Id == Guid.Empty)
+            {
+                category.Images.Id = Guid.NewGuid();
+            }
+            await _categoryService.CreateCategoryAsync(category);
+            Navigation.NavigateTo("/admin");
+        }
+
+    }
+    public void Dispose(){
+
+        if (category.CategoryName != null || category.Title != null)
+        {
+
+            if (category.Images.Id == Guid.Empty)
+            {
+                FileHelper.TryDeleteImage(category.Images.ImagePath.ToString());
+            }
+        }
+    }
+
+    private void handelCancel()
+    {
+        if(category.CategoryName !=null || category.Title !=null)
+        {
+      if(category.Images.Id == Guid.Empty)
+      {
+           FileHelper.TryDeleteImage(category.Images.ImagePath.ToString());
+      }
+        }
+        Navigation.NavigateTo("/admin");
+        
+    }
+    
 }

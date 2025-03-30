@@ -100,7 +100,33 @@ namespace FluentBlazor_Project.Services
                                                         .ToList();          
             return UserDisplayList;
         }
+        public async Task<UserDisplay> GetUserAsync(string id)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(id);
+            UserDisplay userDisplay = new UserDisplay
+            {
+                Email = user.Email,
+                Id = user.Id,
+                Name = user.UserName
+            };
+            return userDisplay;
+        }
 
+        public async Task UpdateUserDetails(UserDisplay userDisplay)
+        {
+            try
+            {
+
+                ApplicationUser user = await _userManager.FindByIdAsync(userDisplay.Id);
+                user.Email = userDisplay.Email;
+                user.UserName = userDisplay.Name;
+                await _userManager.UpdateAsync(user);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Error updating user:", e.Message);
+            }
+        }
         public async Task<IList<string>> GetUserRole(string Id)
         {
             try

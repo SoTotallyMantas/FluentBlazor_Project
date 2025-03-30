@@ -1,5 +1,86 @@
-﻿<h3>ProductCreate</h3>
+﻿@page "/editUser/{Id}"
+@inject NavigationManager Navigation
+@using FluentBlazor_Project.Data.DTO
+@using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.HelperFunctions
+@using FluentBlazor_Project.Interface
+@inject IUserService _userService
 
-@code {
+@if (user == null)
+{
+    <p>Loading category...</p>
+}
+else
+{
+    <h2>User @user.Name Editing</h2>
+    <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="user.Name" Label="Change name:" Required />
+    <FluentTextArea Name="email" Rows="1" Cols="60" @bind-Value="user.Email" Label="Change email:" Required />
 
+    <FluentSelect Items=@comboBoxOptions
+    TOption="Option<string>"
+    Multiple=true
+    OptionText="@(i => i.Text)"
+    OptionValue="@(i => i.Value)"
+    OptionSelected="@(i => i.Selected)"
+    @bind-SelectedOptions="@selectedOptions" />
+
+    <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" Style="width: 75px" onclick="@handleSave">Save</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">Cancel</FluentButton>
+
+
+
+
+}
+
+@code
+{
+    [Parameter] public string Id { get; set; }
+    List<string> Roles;
+    private UserDisplay? user;
+    string? comboBoxValue;
+    List<Option<string>> comboBoxOptions;
+    IEnumerable<Option<string>>? selectedOptions;
+    protected override async Task OnInitializedAsync()
+    {
+
+        user = await _userService.GetUserAsync(Id);
+        Roles =  _userService.GetRoles().Select(r => r.Name).ToList();
+        IList<String> userRoles = await _userService.GetUserRole(Id);
+
+        comboBoxOptions = Roles.Select(r => new Option<string> { Value = r, Text = r, Selected = userRoles.Contains(r) }).ToList();
+
+        if (user == null)
+        {
+            Navigation.NavigateTo("/404");
+        }
+    }
+
+    private async void handleSave()
+    {
+        try
+        {
+            if (user != null)
+            {
+                List<string> UpdateRoles = selectedOptions.Select(u => u.Text).ToList();
+                await _userService.UpdateUserDetails(user);
+                if (UpdateRoles != null)
+                {
+                    await _userService.SetUserRoles(Id, UpdateRoles);
+                }
+                Navigation.NavigateTo("/admin");
+            }
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine("Error:", e.Message);
+        }
+    }
+   
+
+    private void handelCancel()
+    {
+       
+        Navigation.NavigateTo("/admin");
+
+    }
 }

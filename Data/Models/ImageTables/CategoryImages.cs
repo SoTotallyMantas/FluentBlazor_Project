@@ -5,9 +5,9 @@
         public Guid Id { get; set; }
 
         public Guid CategoryId { get; set; }
-        public required Category Category { get; set; }
+        public virtual Category ?Category { get; set; }
         
 
-        public required string ImagePath { get; set; }
+        public string ?ImagePath { get; set; }
     }
 }

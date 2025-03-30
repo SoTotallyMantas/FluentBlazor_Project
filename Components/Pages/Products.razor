@@ -1,6 +1,7 @@
 ﻿@page "/Product/{category}"
 @using FluentBlazor_Project.Components.Pages.Product_Pages
 @using FluentBlazor_Project.Data.Models
+@using FluentBlazor_Project.Data.Models.ImageTables
 @inject NavigationManager Navigation
 @inject IStringLocalizer<Resource> Localizer
 
@@ -16,7 +17,7 @@
     <div style="display: flex; flex-wrap: wrap; gap: 16px; padding: 10px;">
         @foreach (var product in filteredProducts)
         {
-            <ProductCard Id="@product.Id" Name="@product.Name" Price="@product.Price" Category="@product.Category" />
+            <ProductCard Id="@product.Id" Name="@product.Name" Price="@product.Price" Category="@product.Category" ImageUrl="@product.Images.FirstOrDefault(i => i.SelectedTag == ProductImages.Tag.Thumbnail)?.ImagePath" />
         }
     </div>
 }

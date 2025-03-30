@@ -17,7 +17,7 @@
 <h2>Admin</h2>
 <FluentTabs style="margin-top: 5px;">
     <FluentTab id="productTab" label="Product">
-        <FluentDataGrid @ref="@productGrid" Items="@products.AsQueryable()" Pagination="@productPagination" MultiLine="true" >
+        <FluentDataGrid @ref="@productGrid" Items="@products.AsQueryable()" Pagination="@productPagination" MultiLine="true" Loading="false" >
 
             <PropertyColumn Property="@(p => p.Name)" Title="Product Name" Sortable="true" />
             <PropertyColumn Property="@(p => p.Type)" Title="Type" Sortable="true" />
@@ -66,7 +66,7 @@
                 IconEnd="@(new Icons.Regular.Size20.BinRecycle())"
                 Title="Delete" 
                 @onclick="@(() => DeleteCategory(context.Id))" />
-                
+
 
             </TemplateColumn>
         </FluentDataGrid>
@@ -99,6 +99,11 @@
                 @onclick="@(() => DeleteUser(context.Id))" />
             </TemplateColumn>
         </FluentDataGrid>
+        @{
+            // Hidden due to unfinished nature
+            // no way to add password to created user
+        }
+       @if(false){
         <FluentButton Style="width: 60px; height: 40px;"
                       Appearance="Appearance.Accent"
                       IconEnd="@(new Icons.Regular.Size20.Pen())"
@@ -107,6 +112,7 @@
             Create New
 
          </FluentButton>
+        }
         <FluentPaginator State="@userPagination" />
     </FluentTab>
 </FluentTabs>
@@ -138,8 +144,11 @@
         {
             await _userService.DeleteUser(userId);
             userDisplays = await _userService.GetUsers();
+            // RefreshDataASync does not auto Rerender?
+            await userGrid.RefreshDataAsync();
+            this.StateHasChanged();
         }
-        await userGrid.RefreshDataAsync();
+       
         dialogRejected = false;
     }
     private async void DeleteCategory(Guid categoryId)
@@ -147,26 +156,31 @@
         await ShowConfirmationAsync();
         if (dialogRejected == false)
         {
-           
+
 
             Category category = await _categoryService.GetByIdAsync(categoryId);
             await _categoryService.DeleteCategoryAsync(category);
             categories = await _categoryService.GetCategoriesAsync();
+            // RefreshDataASync does not auto Rerender?
+            await categoriesGrid.RefreshDataAsync();
+            this.StateHasChanged();
         }
-        await categoriesGrid.RefreshDataAsync();
+       
         dialogRejected = false;
     }
-    private async  void DeleteProduct(Guid productId)
+    private async void DeleteProduct(Guid productId)
     {
         await ShowConfirmationAsync();
         if (dialogRejected == false)
         {
-           
+
             await _productService.ToggleSoftDeletionProductAsync(productId);
             products = await _productService.GetProductsAsync();
+            // RefreshDataASync does not auto Rerender?
             await productGrid.RefreshDataAsync();
+            this.StateHasChanged();
         }
-        
+
         dialogRejected = false;
     }
     private void EditProduct(Guid productId)
@@ -180,19 +194,19 @@
     }
     private void EditUser(string userId)
     {
-
+        Navigation.NavigateTo($"/editUser/{userId}");
     }
     private void CreateNewProduct()
     {
-
+        Navigation.NavigateTo($"/createProduct/");
     }
     private void CreateNewCategory()
     {
-
+        Navigation.NavigateTo($"/createCategory/");
     }
     private void CreateNewUser()
     {
-
+        Navigation.NavigateTo($"/createUser/");
     }
     
     private async Task ShowConfirmationAsync()

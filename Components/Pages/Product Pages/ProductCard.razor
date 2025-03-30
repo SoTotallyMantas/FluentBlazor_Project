@@ -6,7 +6,14 @@
 @inject IStringLocalizer<Resource> Localizer
 
 <FluentCard style="width: 275px; padding: 16px; margin: 10px; display: flex; flex-direction: column; gap: 5px;">
-    <p style="background: #f5f5f5; height: 180px; display: flex; align-items: center; justify-content: center; color: #666;">[Image Placeholder @Name]</p>
+    @if(string.IsNullOrEmpty(ImageUrl))
+    {
+        <p style="background: #f5f5f5; height: 180px; display: flex; align-items: center; justify-content: center; color: #666;">[Image Placeholder @Name]</p>
+    }
+    else
+    {
+        <img src="@ImageUrl" style="background: #f5f5f5; height: 180px; display: flex; align-items: center; justify-content: center; color: #666;"/>
+    }
     <p>@Name</p>
     <p>@Localizer["price"] €@Price</p>
     <FluentStack>
@@ -16,10 +23,10 @@
         <AuthorizeView Roles="user">
             <FluentButton Appearance="Appearance.Accent" BackgroundColor="#7ED273" IconEnd="@(new Icons.Regular.Size24.Cart())" Style="width:10%" onclick="@addToCard" />
             <FluentButton Appearance="Appearance.Accent"
-                BackgroundColor="@(IsFavorite ? "#CCCCCC" : "#FF3333")"
-                IconEnd="@(IsFavorite ? new Icons.Regular.Size24.HeartBroken() : new Icons.Regular.Size24.Heart())"
-                Style="width: 10%"
-                OnClick=(ToggleFavorite) />
+            BackgroundColor="@(IsFavorite ? "#CCCCCC" : "#FF3333")"
+            IconEnd="@(IsFavorite ? new Icons.Regular.Size24.HeartBroken() : new Icons.Regular.Size24.Heart())"
+            Style="width: 10%"
+            OnClick=(ToggleFavorite) />
         </AuthorizeView>
     </FluentStack>
 </FluentCard>
@@ -36,7 +43,8 @@
 
     [Parameter] 
     public decimal Price { get; set; }
-
+    [Parameter]
+    public string? ImageUrl {get; set; }
     [CascadingParameter]
     private Task<AuthenticationState> AuthStateTask { get; set; }
 
@@ -62,7 +70,7 @@
         var user = authState.User;
         var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
         _isUserAuthenticated = user.Identity?.IsAuthenticated ?? true;
-
+        
         var favorites = await FavoriteService.GetUserFavoritesAsync(userStringId);
         var favoriteEntry = favorites.FirstOrDefault(f => f.ProductId == Id);
 

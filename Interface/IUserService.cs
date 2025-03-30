@@ -11,6 +11,8 @@ namespace FluentBlazor_Project.Interface
         Task DeleteRole(IdentityRole role);
         Task CreateRole(string Role);
         List<IdentityRole> GetRoles();
+        Task UpdateUserDetails(UserDisplay userDisplay);
+        Task<UserDisplay> GetUserAsync(string id);
         Task UpdateRole(IdentityRole role);
         Task SetUserRoles(string UserId, List<string> Roles);
         Task<IList<string>> GetUserRole(string Id);

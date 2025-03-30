@@ -86,6 +86,10 @@ namespace FluentBlazor_Project.Services
                 category.Images.CategoryId = category.Id;
                 category.Images.Category = category;
             }
+            else
+            {
+                throw new ArgumentNullException("Image Cannot be null");
+            }
 
             await _dbContext.Category.AddAsync(category);
             await _dbContext.SaveChangesAsync();
