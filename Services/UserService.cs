@@ -72,7 +72,7 @@ namespace FluentBlazor_Project.Services
         {
             await _roleManager.CreateAsync(new IdentityRole { Name = Role });
         }
-        public async Task<List<IdentityRole>> GetRoles()
+        public List<IdentityRole> GetRoles()
         {
             return _roleManager.Roles.ToList();
         }

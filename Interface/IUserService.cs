@@ -10,7 +10,7 @@ namespace FluentBlazor_Project.Interface
         Task SeedRoles(string UserId);
         Task DeleteRole(IdentityRole role);
         Task CreateRole(string Role);
-        Task<List<IdentityRole>> GetRoles();
+        List<IdentityRole> GetRoles();
         Task UpdateRole(IdentityRole role);
         Task SetUserRoles(string UserId, List<string> Roles);
         Task<IList<string>> GetUserRole(string Id);
