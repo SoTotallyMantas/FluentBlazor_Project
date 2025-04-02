@@ -103,7 +103,13 @@
         if (Guid.TryParse(Id, out var ParsedId))
         {
             product = await _productService.RetrieveProductByIndexAsync(ParsedId);
-            imagePath =product.Images.FirstOrDefault(i => i.SelectedTag == ProductImages.Tag.Thumbnail).ImagePath;
+            if(product.Images.Where(p => p.SelectedTag == ProductImages.Tag.Thumbnail).Count() > 0)
+            {
+                imagePath = product.Images.FirstOrDefault(i => i.SelectedTag == ProductImages.Tag.Thumbnail).ImagePath;
+            }
+            else{
+                imagePath = null;
+            }
         }
 
         if (product == null)
@@ -149,7 +155,7 @@
         var userStringId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
         if (userStringId != null)
         {
-            await _cartService.AddCartItem(userStringId, product.Id, 1);
+            await _cartService.AddCartItem(userStringId, product.Id, Quantity);
             await LoadCartItems();
         }
     }

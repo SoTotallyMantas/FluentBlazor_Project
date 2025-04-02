@@ -47,7 +47,17 @@ namespace FluentBlazor_Project.Services
                     .Include(c => c.CartItems)
                     .ThenInclude(ci => ci.Product)
                     .FirstOrDefaultAsync(c => c.UserId == UserId);
+                if(cart is null)
+                {
+                    cart = new Cart
+                    {
+                        UserId = UserId,
+                        CartItems = new List<CartItem>()
 
+                    };
+                    _dbContext.Carts.Add(cart);
+                    await _dbContext.SaveChangesAsync();
+                }
                 var existingItem = cart.CartItems
                     .FirstOrDefault(ci => ci.ProductId == productId);
 

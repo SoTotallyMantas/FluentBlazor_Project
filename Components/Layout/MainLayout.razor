@@ -52,11 +52,14 @@
                         }
                     </Body>
                     <Footer>
-                        <FluentButton Appearance="Appearance.Lightweight"
-                        IconStart="@(new Icons.Regular.Size16.ArrowDown())"
-                        OnClick="@openPayment">
-                            @Localizer["payment"]
-                        </FluentButton>
+                       @if(cartItems.Count() > 0)
+                        {
+                            <FluentButton Appearance="Appearance.Lightweight"
+                            IconStart="@(new Icons.Regular.Size16.ArrowDown())"
+                            OnClick="@openPayment">
+                                @Localizer["payment"]
+                            </FluentButton>
+                        }
                     </Footer>
                 </FluentPopover>
             }

@@ -20,7 +20,7 @@
         <FluentDataGrid @ref="@productGrid" Items="@products.AsQueryable()" Pagination="@productPagination" MultiLine="true" Loading="false" >
 
             <PropertyColumn Property="@(p => p.Name)" Title="Product Name" Sortable="true" />
-            <PropertyColumn Property="@(p => p.Type)" Title="Type" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Category)" Title="Category Name" Sortable="true" />
 
             <TemplateColumn Title="Actions">
                 <FluentButton Style="width: 60px; height: 40px;"
