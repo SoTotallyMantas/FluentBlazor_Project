@@ -11,6 +11,8 @@ namespace FluentBlazor_Project.Interface
         Task CreateCategoryAsync(Category category);
         Task UpdateCategoryAsync(Category category);
 
+        Task<Category> GetCategoryByNameAsync(string name);
+
 
 }
 }

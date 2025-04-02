@@ -3,6 +3,7 @@ using FluentBlazor_Project.Data.Models;
 using FluentBlazor_Project.Data.Models.ImageTables;
 using FluentBlazor_Project.HelperFunctions;
 using FluentBlazor_Project.Interface;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 
 namespace FluentBlazor_Project.Services
@@ -25,6 +26,34 @@ namespace FluentBlazor_Project.Services
                 .ToListAsync();
         }
 
+        public async Task<Category> GetCategoryByNameAsync(string name)
+        {
+            try
+            {
+
+
+                if (name is not null)
+                {
+                    using var _dbContext = CreateContext();
+
+                    var result = await _dbContext.Category.Where(c => c.CategoryName == name)
+                        .FirstOrDefaultAsync(c => c.CategoryName == name);
+
+                    
+                    return result ;
+                }
+                else
+                {
+                    return null;
+                }
+               
+            }
+            catch(Exception e )
+            {
+                Console.WriteLine($"Error Returning Category By Name: {name} " + $"{e.Message}");
+                throw;
+            }
+        }
         public async Task<Category> GetByIdAsync(Guid Id)
         {
             using var _dbContext = CreateContext();

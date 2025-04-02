@@ -7,6 +7,7 @@
 @implements IDisposable
 @inject IProductService _productService
 @inject NavigationManager Navigation
+@inject ICategoryService _categoryService
 @attribute [Authorize(Roles ="administrator")]
 <h2>ProductCreate</h2>
 <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px;">
@@ -14,6 +15,18 @@
         <FluentTextArea Name="type" Rows="1" Cols="60" @bind-Value="product.Type" Label="Change type:" Required />
         <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="product.Name" Label="Change name:" Required />
         <FluentTextArea Name="category" Rows="1" Cols="60" @bind-Value="product.Category" Label="Change category:" Required />
+        <FluentAutocomplete TOption="Category"
+                            AutoComplete="off"
+                            Autofocus="true"
+                            Label="Select a Category"
+                            Width="300px"
+                            MaxAutoHeight="200px"
+                            Placeholder="Select Categories"
+                            OnOptionsSearch="@OnSearchAsync"
+                            OptionText="@( categoryItem => categoryItem.CategoryName)"
+                            MaximumSelectedOptions="1"
+                            @bind-SelectedOptions="@selectedCategories" />
+
         <FluentTextArea Name="price" Rows="1" Cols="60" @bind-Value="@priceString" Label="Change price:" Required />
     </div>
     <div>
@@ -138,10 +151,23 @@ OptionText="@(t => t.ImagePath + ", " + t.SelectedTag)"
     int? progressPercent;
     string? progressTitle;
 
+   
+    // Category Selection Logic //
+
+    IEnumerable<Category> selectedCategories = Array.Empty<Category>();
+
+    private async Task OnSearchAsync(OptionsSearchEventArgs<Category> eventArgs)
+    {
+        var allCategories = await _categoryService.GetCategoriesAsync();
+        eventArgs.Items = allCategories.Where(allCategories => allCategories.CategoryName.StartsWith(eventArgs.Text, StringComparison.OrdinalIgnoreCase))
+        .OrderBy(allCategories => allCategories.CategoryName);
+    }
+
+    // Category Selection Logic //
     FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
     List<string> imageSrc = new List<string>();
     List<byte[]> imageSaveData = new List<byte[]>();
-
+    
     async Task OnCompleted(IEnumerable<FluentInputFileEventArgs> files)
     {
 

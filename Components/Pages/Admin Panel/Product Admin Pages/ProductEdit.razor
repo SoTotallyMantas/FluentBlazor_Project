@@ -4,6 +4,7 @@
 @using FluentBlazor_Project.Data.Models.ImageTables
 @using FluentBlazor_Project.Interface
 @inject IProductService _productService
+@inject ICategoryService _categoryService
 @using FluentBlazor_Project.HelperFunctions
 @using Microsoft.AspNetCore.Authorization
 @implements IDisposable
@@ -21,7 +22,20 @@ else
         <div>
             <FluentTextArea Name="type" Rows="1" Cols="60" @bind-Value="product.Type" Label="Change type:" Required />
             <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="product.Name" Label="Change name:" Required />
-            <FluentTextArea Name="category" Rows="1" Cols="60" @bind-Value="product.Category" Label="Change category:" Required />
+            <FluentAutocomplete TOption="Category"
+            AutoComplete="off"
+            Autofocus="true"
+            Label="Select a Category"
+            Width="300px"
+            MaxAutoHeight="200px"
+            Placeholder="Select Categories"
+            OnOptionsSearch="@OnSearchAsync"
+            OptionText="@( categoryItem => categoryItem.CategoryName)"
+            MaximumSelectedOptions="1"
+            @bind-SelectedOptions="@selectedCategories" 
+            SelectedOption="@(productCategory)"
+            />
+
             <FluentTextArea Name="price" Rows="1" Cols="60" @bind-Value="@priceString" Label="Change price:" Required />
         </div>
         <div>
@@ -115,7 +129,7 @@ else
     // Helper function for Image uploading
     private FileHelper imageUpload = new FileHelper();
 
-
+    private Category productCategory = new();
     protected override async Task OnInitializedAsync()
     {
         Guid.TryParse(Id, out var parsedId);
@@ -128,7 +142,12 @@ else
         else
         {
             priceString = product.Price.ToString();
+
+
         }
+
+        productCategory = await _categoryService.GetCategoryByNameAsync(product.Category.ToString());
+        selectedCategories = new List<Category> {productCategory} ;
         SelectedThumbnailValue = product.Images
                                  .Where(i => i.SelectedTag == ProductImages.Tag.Thumbnail)
                                  .Select(i => i.Id)
@@ -141,6 +160,19 @@ else
     int? progressPercent;
     string? progressTitle;
 
+
+    // Category Selection Logic //
+
+    IEnumerable<Category> selectedCategories = Array.Empty<Category>();
+
+    private async Task OnSearchAsync(OptionsSearchEventArgs<Category> eventArgs)
+    {
+        var allCategories = await _categoryService.GetCategoriesAsync();
+        eventArgs.Items = allCategories.Where(allCategories => allCategories.CategoryName.StartsWith(eventArgs.Text, StringComparison.OrdinalIgnoreCase))
+        .OrderBy(allCategories => allCategories.CategoryName);
+    }
+
+    // Category Selection Logic //
     FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
     List<string> imageSrc = new List<string>();
     List<byte[]> imageSaveData = new List<byte[]>();
@@ -190,24 +222,26 @@ else
 
     public async Task SaveChanges()
     {
-
-        foreach(var image in product?.Images)
+        if (selectedCategories.Any())
         {
-            image.SelectedTag = ProductImages.Tag.Extras;
-        }
-        if(Guid.TryParse(SelectedThumbnailValue, out var SelectedId))
-        {
-            var selectedImage = product.Images.FirstOrDefault(i => i.Id == SelectedId);
-            if(selectedImage != null)
+            foreach (var image in product?.Images)
             {
-                selectedImage.SelectedTag = ProductImages.Tag.Thumbnail;
+                image.SelectedTag = ProductImages.Tag.Extras;
             }
-        }
+            if (Guid.TryParse(SelectedThumbnailValue, out var SelectedId))
+            {
+                var selectedImage = product.Images.FirstOrDefault(i => i.Id == SelectedId);
+                if (selectedImage != null)
+                {
+                    selectedImage.SelectedTag = ProductImages.Tag.Thumbnail;
+                }
+            }
 
-        Console.WriteLine("START OF SERVICE");
-        await _productService.EditProductAsync(product);
-        Console.WriteLine("END OF SERVICE");
-        Navigation.NavigateTo("/admin");
+            product.Category = selectedCategories.First().CategoryName.ToString();
+            await _productService.EditProductAsync(product);
+
+            Navigation.NavigateTo("/admin");
+        }
     }
 
     private void DeleteImage(Guid imageId)
