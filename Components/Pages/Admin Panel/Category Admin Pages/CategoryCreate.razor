@@ -5,17 +5,18 @@
 @using FluentBlazor_Project.Interface
 @using FluentBlazor_Project.Data.Models.ImageTables
 @inject ICategoryService _categoryService
+@inject IStringLocalizer<Resource> Localizer
 @implements IDisposable
 
-<h2>Category Creationg</h2>
-<FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="category.CategoryName" Label="Change name:" Required />
-<FluentTextArea Name="title" Rows="1" Cols="60" @bind-Value="category.Title" Label="Change title:" Required />
-<FluentTextArea Name="description" Rows="1" Cols="60" @bind-Value="category.Description" Label="Change description:" Required />
+<h2>@Localizer["categoryCreation"]</h2>
+<FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="category.CategoryName" Label="@Localizer["categoryName"]" Required />
+<FluentTextArea Name="title" Rows="1" Cols="60" @bind-Value="category.Title" Label="@Localizer["categoryTitle"]" Required  />
+<FluentTextArea Name="description" Rows="1" Cols="60" @bind-Value="category.Description" Label="@Localizer["categoryDescription"]" Required />
 @if (category.Images.ImagePath != null)
 {
-    <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" Style="width: 75px" OnClick="@handleSave">Save</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" Style="width: 75px" OnClick="@handleSave">@Localizer["save"]</FluentButton>
 }
-<FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">Cancel</FluentButton>
+<FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">@Localizer["cancel"]</FluentButton>
 
 
 <FluentInputFile @ref="@myFileUploader"
@@ -39,12 +40,12 @@ OnCompleted="@OnCompleted" />
 </FluentLabel>
 
 <FluentButton Id="MyUploadLoadingButton" Loading="_formUploading" Appearance="Appearance.Accent">
-    Upload files
+    @Localizer["uploadFile"]
 </FluentButton>
 
 @if (category.Images.ImagePath !=null)
 {
-    <h4>File(s) uploaded:</h4>
+    <h4>@Localizer["fileUploaded"]</h4>
     <ul>
 
         <li>
@@ -52,26 +53,16 @@ OnCompleted="@OnCompleted" />
             @category.Images.ImagePath
             @if (category.Images.ImagePath != null)
             {
-
-
-
                 <img src="@category.Images.ImagePath" style="height: 125px;width:125px" />
 
-
-                <p>"Upload Again to Replace Image"</p>
-
-
+                <p>@Localizer["uploadAgain"]</p>
             }
         </li>
-
     </ul>
 }
 
 
-
 @code {
-
-
     private Category? category;
     // Helper function for Image uploading
     private FileHelper imageUpload = new FileHelper();
@@ -122,13 +113,11 @@ OnCompleted="@OnCompleted" />
             // Convert to base64String so that we can actually display it
             string base64String = Convert.ToBase64String(imageData);
             imageSrc.Add($"data:{file.ContentType};base64,{base64String}");
+
             List<string> savedProductImagesPaths = await imageUpload.SaveFluentInputToFile(newFiles, imageSaveData);
             category.Images.ImagePath = savedProductImagesPaths.First(u => u != null).ToString();
             category.Images.CategoryId = category.Id;
             category.Images.Category = category;
-
-
-
 
         }
         _formUploading = false;

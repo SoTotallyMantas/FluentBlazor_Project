@@ -2,6 +2,7 @@
 
 @implements IDisposable
 
+@inject ICategoryService _categoryService
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Resource> Localizer
 
@@ -13,12 +14,10 @@
             <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">@Localizer["home"]</FluentNavLink>
             @*Product Categories with Links to products*@
             <FluentNavGroup Title="@Localizer["productCategories"]" Tooltip="@Localizer["productCategories"]" Icon="@(new Icons.Regular.Size20.List())">
-                <FluentNavLink Href="Product/CPU">Processors</FluentNavLink>
-                <FluentNavLink Href="Product/GPU">Graphics Card</FluentNavLink>
-                <FluentNavLink Href="Product/PSU">Power Block</FluentNavLink>
-                <FluentNavLink Href="Product/MB">Mother Board</FluentNavLink>
-                <FluentNavLink Href="Product/RAM">RAM memory</FluentNavLink>
-                <FluentNavLink Href="Product/Storage">Storage</FluentNavLink>
+                @foreach (Category category in categoriesDB)
+                {
+                    <FluentNavLink Href="@($"Product/{category.CategoryName}")">@category.Title</FluentNavLink>
+                }
             </FluentNavGroup>
 
             <AuthorizeView Roles="user">
@@ -26,7 +25,7 @@
             </AuthorizeView>
 
             <AuthorizeView Roles="administrator">
-                <FluentNavLink Href="/admin">Admin Menu</FluentNavLink>
+                <FluentNavLink Href="/admin">@Localizer["adminMenu"]</FluentNavLink>
             </AuthorizeView>
 
             <AuthorizeView>
@@ -54,10 +53,12 @@
     private bool expanded = true;
     private string? currentUrl;
 
-    protected override void OnInitialized()
+    List<Category> categoriesDB = new();
+    protected override async Task OnInitializedAsync()
     {
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
         NavigationManager.LocationChanged += OnLocationChanged;
+        categoriesDB = await _categoryService.GetCategoriesAsync();
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)

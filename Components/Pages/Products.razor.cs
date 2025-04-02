@@ -7,32 +7,32 @@ namespace FluentBlazor_Project.Components.Pages
 {
     public partial class Products
     {
-        private IProductService _ProductService { get; set; }
-        private List<Product> products = [];
-        public Products(IProductService productService)
-        {
-            _ProductService = productService;
-        }
-
-        [Parameter] 
+        [Parameter]
         public string Category { get; set; } = string.Empty;
 
-        private string pageTitle = string.Empty;
-        private string description = string.Empty;
+        [Inject]
+        private IProductService ProductService { get; set; } = default!;
+
+        [Inject]
+        private ICategoryService CategoryService { get; set; } = default!;
+
         private List<Product> filteredProducts = new();
+        private string pageTitle = string.Empty;
 
         protected override async Task OnParametersSetAsync()
-        {   
-            filteredProducts = await _ProductService.GetProductByCategoryAsync(Category);
-            
-            if (ProductDataTest.productDetails.TryGetValue(Category, out var details))
+        {
+            var categories = await CategoryService.GetCategoriesAsync();
+            var selectedCategory = categories.FirstOrDefault(c => c.CategoryName.Equals(Category, StringComparison.OrdinalIgnoreCase));
+
+            if (selectedCategory != null)
             {
-                pageTitle = details.Title;
-                description = details.Description;
+                pageTitle = selectedCategory.Title;
+                filteredProducts = await ProductService.GetProductByCategoryAsync(Category);
             }
             else
             {
-                Navigation.NavigateTo("/404");
+                pageTitle = Localizer["categoryNotFound"];
+                filteredProducts.Clear();
             }
         }
     }

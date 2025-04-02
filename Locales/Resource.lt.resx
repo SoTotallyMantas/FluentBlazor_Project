@@ -273,4 +273,52 @@
   <data name="noPurchase" xml:space="preserve">
     <value>Nėra atliktų pirkimų</value>
   </data>
+  <data name="loadingCategory" xml:space="preserve">
+    <value>Kraunamos kategorijos...</value>
+  </data>
+  <data name="editing" xml:space="preserve">
+    <value>redagavimas</value>
+  </data>
+  <data name="category2" xml:space="preserve">
+    <value>Kategorijos</value>
+  </data>
+  <data name="changeName" xml:space="preserve">
+    <value>Pakeisti pavadinimą:</value>
+  </data>
+  <data name="changeTitle" xml:space="preserve">
+    <value>Pakeisti titulą:</value>
+  </data>
+  <data name="changeDescription" xml:space="preserve">
+    <value>Pakeisti aprašymą:</value>
+  </data>
+  <data name="save" xml:space="preserve">
+    <value>Išsaugoti</value>
+  </data>
+  <data name="cancel" xml:space="preserve">
+    <value>Atšaukti</value>
+  </data>
+  <data name="uploadFile" xml:space="preserve">
+    <value>Įkelti failą</value>
+  </data>
+  <data name="fileUploaded" xml:space="preserve">
+    <value>Įkelti failai:</value>
+  </data>
+  <data name="uploadAgain" xml:space="preserve">
+    <value>"Įkelti ir vėl, kad pakeisti nuotrauką"</value>
+  </data>
+  <data name="categoryCreation" xml:space="preserve">
+    <value>Kategorijos kūrimas</value>
+  </data>
+  <data name="categoryName" xml:space="preserve">
+    <value>Kategorijos pavadinimas:</value>
+  </data>
+  <data name="categoryTitle" xml:space="preserve">
+    <value>Kategorijos titulas:</value>
+  </data>
+  <data name="categoryDescription" xml:space="preserve">
+    <value>Kategorijos aprašymas:</value>
+  </data>
+  <data name="adminMenu" xml:space="preserve">
+    <value>Administracijos meniu</value>
+  </data>
 </root>

@@ -3,6 +3,7 @@
 @using FluentBlazor_Project.Interface
 @inject IStringLocalizer<Resource> Localizer
 @inject ICategoryService _categoryService
+
 <PageTitle>Electromark</PageTitle>
 <h1>Electromark</h1>
 <FluentDivider />
@@ -10,9 +11,9 @@
 <h2>@Localizer["homeRecommended"]</h2>
 <div style="display:flex; justify-content:center">
     <FluentHorizontalScroll Style="@($"width: {Width}; height: {Height}; margin-bottom: 20px")" Speed="1200" Easing="ScrollEasing.EaseInOut">
-        @for (int i = 0; i <= 5; i++)
+        @foreach (Category category in categoriesDB)
         {
-            <RecommendedCard CardTitle=@title.ElementAt(i).ToString() CardHeight=@Height CardWidth=@Width />
+            <RecommendedCard CardTitle=@category.Title.ToString() CardHeight=@Height CardWidth=@Width />
         }
     </FluentHorizontalScroll>
     <FluentDivider />
@@ -31,8 +32,6 @@
 
 
 @code {
-    public List<string> categories = ["PSU", "GPU", "RAM", "CPU", "MB", "Storage"];
-    public List<string> title = ["Power Block", "Graphics Cards", "RAM memory", "Processors", "Motherboard", "Storage"];
     List<Category> categoriesDB = new();
     protected override async Task OnInitializedAsync()
     {
