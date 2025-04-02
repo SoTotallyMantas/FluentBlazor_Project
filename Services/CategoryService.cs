@@ -133,7 +133,7 @@ namespace FluentBlazor_Project.Services
 
                 if(!string.Equals(oldPath,category.Images.ImagePath, StringComparison.OrdinalIgnoreCase))
                 {
-                    FileHelper.TryDeleteImage(category.Images.ImagePath);
+                    FileHelper.TryDeleteImage(oldPath);
                 }
             
         }

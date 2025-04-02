@@ -273,4 +273,52 @@
   <data name="noPurchase" xml:space="preserve">
     <value>There's no purchases made</value>
   </data>
+  <data name="loadingCategory" xml:space="preserve">
+    <value>Loading category...</value>
+  </data>
+  <data name="editing" xml:space="preserve">
+    <value>editing</value>
+  </data>
+  <data name="category2" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="changeName" xml:space="preserve">
+    <value>Change name:</value>
+  </data>
+  <data name="changeTitle" xml:space="preserve">
+    <value>Change title:</value>
+  </data>
+  <data name="changeDescription" xml:space="preserve">
+    <value>Change description:</value>
+  </data>
+  <data name="save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="uploadFile" xml:space="preserve">
+    <value>Upload file</value>
+  </data>
+  <data name="fileUploaded" xml:space="preserve">
+    <value>File(s) uploaded:</value>
+  </data>
+  <data name="uploadAgain" xml:space="preserve">
+    <value>"Upload Again to Replace Image"</value>
+  </data>
+  <data name="categoryCreation" xml:space="preserve">
+    <value>Category creation</value>
+  </data>
+  <data name="categoryName" xml:space="preserve">
+    <value>Category name:</value>
+  </data>
+  <data name="categoryTitle" xml:space="preserve">
+    <value>Category title:</value>
+  </data>
+  <data name="categoryDescription" xml:space="preserve">
+    <value>Category description:</value>
+  </data>
+  <data name="adminMenu" xml:space="preserve">
+    <value>Admin menu</value>
+  </data>
 </root>

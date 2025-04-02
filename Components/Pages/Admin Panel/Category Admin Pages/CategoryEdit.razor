@@ -4,21 +4,21 @@
 @using FluentBlazor_Project.HelperFunctions
 @using FluentBlazor_Project.Interface
 @inject ICategoryService _categoryService
+@inject IStringLocalizer<Resource> Localizer
 
 @if (category == null)
 {
-    <p>Loading category...</p>
+    <p>@Localizer["loadingCategory"]</p>
 }
 else
 {
-    <h2>Product @category.CategoryName Editing</h2>
-    <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="category.CategoryName" Label="Change name:" Required/>
-    <FluentTextArea Name="title" Rows="1" Cols="60" @bind-Value="category.Title" Label="Change title:" />
-    <FluentTextArea Name="description" Rows="1" Cols="60" @bind-Value="category.Description" Label="Change description:" />
+    <h2>@(Localizer["category2"] + category.CategoryName + Localizer["editing"])</h2>
+    <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="category.CategoryName" Label=@Localizer["changeName"] Required/>
+    <FluentTextArea Name="title" Rows="1" Cols="60" @bind-Value="category.Title" Label=@Localizer["changeTitle"] />
+    <FluentTextArea Name="description" Rows="1" Cols="60" @bind-Value="category.Description" Label=@Localizer["changeDescription"] />
 
-    <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" Style="width: 75px">Save</FluentButton>
-    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">Cancel</FluentButton>
-
+    <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" Style="width: 75px" OnClick="@handleSave">@Localizer["save"]</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">@Localizer["cancel"]</FluentButton>
 
     <FluentInputFile @ref="@myFileUploader"
                      DragDropZoneVisible="false"
@@ -41,12 +41,12 @@ else
     </FluentLabel>
 
     <FluentButton Id="MyUploadLoadingButton" Loading="_formUploading" Appearance="Appearance.Accent">
-        Upload files
+        @Localizer["uploadFile"]
     </FluentButton>
 
     @if (category.Images.ImagePath != null)
     {
-        <h4>File(s) uploaded:</h4>
+        <h4>@Localizer["fileUploaded"]</h4>
         <ul>
 
             <li>
@@ -54,15 +54,8 @@ else
                 @category.Images.ImagePath
                 @if (category.Images.ImagePath != null)
                 {
-
-
-
                     <img src="@category.Images.ImagePath" style="height: 125px;width:125px" />
-
-
-                    <p>"Upload Again to Replace Image"</p>
-
-
+                    <p>@Localizer["uploadAgain"]</p>
                 }
             </li>
 
@@ -125,9 +118,8 @@ else
 
         }
         _formUploading = false;
-
-
     }
+
     private async void handleSave()
     {
         if (category != null)
@@ -136,7 +128,7 @@ else
             {
                 category.Images.Id = Guid.NewGuid();
             }
-            await _categoryService.CreateCategoryAsync(category);
+            await _categoryService.UpdateCategoryAsync(category);
             Navigation.NavigateTo("/admin");
         }
     }
@@ -156,6 +148,5 @@ else
             FileHelper.TryDeleteImage(category.Images.ImagePath.ToString());
         }
         Navigation.NavigateTo("/admin");
-
     }
 }
