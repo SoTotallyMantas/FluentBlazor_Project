@@ -218,12 +218,17 @@ OptionText="@(t => t.ImagePath + ", " + t.SelectedTag)"
         {
             image.SelectedTag = ProductImages.Tag.Extras;
         }
-        if (Guid.TryParse(SelectedThumbnailValue, out var SelectedId))
+        Guid.TryParse(SelectedThumbnailValue, out var SelectedId);
+        var selectedImage = product.Images.FirstOrDefault(i => i.Id == SelectedId);
+        if (selectedImage != null)
         {
-            var selectedImage = product.Images.FirstOrDefault(i => i.Id == SelectedId);
-            if (selectedImage != null)
+            selectedImage.SelectedTag = ProductImages.Tag.Thumbnail;
+        }
+        else
+        {
+            if (product?.Images.Count() > 0 && product.Images.Any(p => p.SelectedTag != ProductImages.Tag.Thumbnail))
             {
-                selectedImage.SelectedTag = ProductImages.Tag.Thumbnail;
+                product.Images.First().SelectedTag = ProductImages.Tag.Thumbnail;
             }
         }
 
