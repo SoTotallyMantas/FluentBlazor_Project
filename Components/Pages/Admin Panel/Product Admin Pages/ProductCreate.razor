@@ -8,26 +8,28 @@
 @inject IProductService _productService
 @inject NavigationManager Navigation
 @inject ICategoryService _categoryService
+@inject IStringLocalizer<Resource> Localizer
+
 @attribute [Authorize(Roles ="administrator")]
-<h2>ProductCreate</h2>
+<h2>@Localizer["productCreate"]</h2>
 <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px;">
     <div>
-        <FluentTextArea Name="type" Rows="1" Cols="60" @bind-Value="product.Type" Label="Change type:" Required />
-        <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="product.Name" Label="Change name:" Required />
-        <FluentTextArea Name="category" Rows="1" Cols="60" @bind-Value="product.Category" Label="Change category:" Required />
+        <FluentTextArea Name="type" Rows="1" Cols="60" @bind-Value="product.Type" Label="@Localizer["productType"]" Required />
+        <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="product.Name" Label="@Localizer["productName"]" Required />
+        <FluentTextArea Name="category" Rows="1" Cols="60" @bind-Value="product.Category" Label="@Localizer["productCategories"]" Required />
         <FluentAutocomplete TOption="Category"
                             AutoComplete="off"
                             Autofocus="true"
-                            Label="Select a Category"
+                            Label="@Localizer["selectCategory"]"
                             Width="300px"
                             MaxAutoHeight="200px"
-                            Placeholder="Select Categories"
+                            Placeholder="@Localizer["selectCategories"]"
                             OnOptionsSearch="@OnSearchAsync"
                             OptionText="@( categoryItem => categoryItem.CategoryName)"
                             MaximumSelectedOptions="1"
                             @bind-SelectedOptions="@selectedCategories" />
 
-        <FluentTextArea Name="price" Rows="1" Cols="60" @bind-Value="@priceString" Label="Change price:" Required />
+        <FluentTextArea Name="price" Rows="1" Cols="60" @bind-Value="@priceString" Label="@Localizer["productPrice"]" Required />
     </div>
     <div>
         @{
@@ -54,12 +56,12 @@
         </FluentLabel>
 
         <FluentButton Id="MyUploadLoadingButton" Loading="_formUploading" Appearance="Appearance.Accent">
-            Upload files
+            @Localizer["uploadFile"]
         </FluentButton>
 
         @if (product.Images.Any())
         {
-            <h4>File(s) uploaded:</h4>
+            <h4>@Localizer["fileUploaded"]</h4>
             <ul>
                 @foreach (var image in product.Images)
                 {
@@ -74,7 +76,7 @@
                             <img src="@image.ImagePath" style="height: 125px;width:125px" />
 
                             <FluentButton Appearance="Appearance.Accent" OnClick="@(() => DeleteImage(image.Id))">
-                                Delete Image
+                                @Localizer["deleteImage"]
                             </FluentButton>
                         }
                     </li>
@@ -86,26 +88,28 @@
         }
     </div>
 </div>
-<FluentTextArea Name="description" Rows="18" Cols="110" @bind-Value="product.Description" Label="Change description" Style="margin-right: 20px" />
+<FluentTextArea Name="description" Rows="18" Cols="110" @bind-Value="product.Description" Label="@Localizer["productDescription"]" Style="margin-right: 20px" />
 
-// Image that will be thumbnail selection
+@{
+    // Image that will be thumbnail selection
+}
 
 <FluentSelect TOption="ProductImages"
-Label="Select which image will be a thumbail"
+Label="@Localizer["selectImgThumbnail"]"
 Items="@product.Images"
 Id="thumbnail-listbox"
 Width="200px"
 Height="250px"
-Placeholder="Make a selection..."
+Placeholder="@Localizer["makeSelection"]"
 OptionValue="@(t => t.Id.ToString())"
 OptionText="@(t => t.ImagePath + ", " + t.SelectedTag)"
 @bind-Value="@SelectedThumbnailValue"
 @bind-SelectedOption="@SelectedThumbnailOption" />
 <p>
-    Selected New/Old Thumbnail image: @SelectedThumbnailValue <br />
+    @(Localizer["selectNewOldThumbnail"] + SelectedThumbnailValue) <br />
 </p>
-<FluentButton Appearance="Appearance.Accent" Style="width: 75px" OnClick="@SaveChanges">Save</FluentButton>
-<FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handleCancel">Cancel</FluentButton>
+<FluentButton Appearance="Appearance.Accent" Style="width: 75px" OnClick="@SaveChanges">@Localizer["save"]</FluentButton>
+<FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handleCancel">@Localizer["cancel"]</FluentButton>
 @code {
     [Parameter] public string Id { get; set; }
 

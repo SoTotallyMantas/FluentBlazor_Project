@@ -5,12 +5,13 @@
 @using FluentBlazor_Project.HelperFunctions
 @using FluentBlazor_Project.Interface
 @inject IUserService _userService
+@inject IStringLocalizer<Resource> Localizer
 
 @if (user != null)
 {
-    <h2>User Create</h2>
-    <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="user.Name" Label="Change name:" Required />
-    <FluentTextArea Name="email" Rows="1" Cols="60" @bind-Value="user.Email" Label="Change email:" Required />
+    <h2>@Localizer["userCreate"]</h2>
+    <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="user.Name" Label="@Localizer["userName"]" Required />
+    <FluentTextArea Name="email" Rows="1" Cols="60" @bind-Value="user.Email" Label="@Localizer["userEmail"]" Required />
 
     <FluentSelect Items=@comboBoxOptions
     TOption="Option<string>"
@@ -20,8 +21,8 @@
     OptionSelected="@(i => i.Selected)"
     @bind-SelectedOptions="@selectedOptions" />
 
-    <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" Style="width: 75px">Save</FluentButton>
-    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">Cancel</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" Style="width: 75px">@Localizer["save"]</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">@Localizer["cancel"]</FluentButton>
 
 
 

@@ -274,7 +274,7 @@
     <value>Nėra atliktų pirkimų</value>
   </data>
   <data name="loadingCategory" xml:space="preserve">
-    <value>Kraunamos kategorijos...</value>
+    <value>Įkeliama kategorija...</value>
   </data>
   <data name="editing" xml:space="preserve">
     <value>redagavimas</value>
@@ -320,5 +320,92 @@
   </data>
   <data name="adminMenu" xml:space="preserve">
     <value>Administracijos meniu</value>
+  </data>
+  <data name="productCreate" xml:space="preserve">
+    <value>Sukurti produktą</value>
+  </data>
+  <data name="changeType" xml:space="preserve">
+    <value>Pakeisti tipą:</value>
+  </data>
+  <data name="productType" xml:space="preserve">
+    <value>Produkto tipas:</value>
+  </data>
+  <data name="productName" xml:space="preserve">
+    <value>Produkto pavadinimas:</value>
+  </data>
+  <data name="selectCategories" xml:space="preserve">
+    <value>Pasirinkti kategorijas</value>
+  </data>
+  <data name="productPrice" xml:space="preserve">
+    <value>Produkto kaina:</value>
+  </data>
+  <data name="deleteImage" xml:space="preserve">
+    <value>Ištrinti nuotrauką</value>
+  </data>
+  <data name="productDescription" xml:space="preserve">
+    <value>Produkto aprašymas:</value>
+  </data>
+  <data name="selectImgThumbnail" xml:space="preserve">
+    <value>Pasirinkite kuri nuotrauka bus miniatiūra</value>
+  </data>
+  <data name="makeSelection" xml:space="preserve">
+    <value>Padaryk pasirinkimą...</value>
+  </data>
+  <data name="selectNewOldThumbnail" xml:space="preserve">
+    <value>Pasirinkite naują / seną miniatiūriną:</value>
+  </data>
+  <data name="selectCategory" xml:space="preserve">
+    <value>Pasirinkti kategoriją:</value>
+  </data>
+  <data name="loadingProduct" xml:space="preserve">
+    <value>Įkeliamas produktas...</value>
+  </data>
+  <data name="product" xml:space="preserve">
+    <value>Produkto</value>
+  </data>
+  <data name="changePrice" xml:space="preserve">
+    <value>Pakeisti kainą:</value>
+  </data>
+  <data name="userCreate" xml:space="preserve">
+    <value>Sukurti naudotoją</value>
+  </data>
+  <data name="userName" xml:space="preserve">
+    <value>Naudotojo vardas:</value>
+  </data>
+  <data name="userEmail" xml:space="preserve">
+    <value>Naudotojo El. paštas:</value>
+  </data>
+  <data name="loadingUser" xml:space="preserve">
+    <value>Įkeliamas naudotojas...</value>
+  </data>
+  <data name="user" xml:space="preserve">
+    <value>Naudotojo</value>
+  </data>
+  <data name="changeUsername" xml:space="preserve">
+    <value>Pakeisti naudotojo vardą:</value>
+  </data>
+  <data name="changeEmail" xml:space="preserve">
+    <value>Pakeisti El. paštą:</value>
+  </data>
+  <data name="product2" xml:space="preserve">
+    <value>Produktas</value>
+  </data>
+  <data name="createNew" xml:space="preserve">
+    <value>Sukurti</value>
+  </data>
+  <data name="name" xml:space="preserve">
+    <value>Pavadinimas</value>
+  </data>
+  <data name="title" xml:space="preserve">
+    <value>Titulas</value>
+  </data>
+  <data name="user2" xml:space="preserve">
+    <value>Naudotojas</value>
+  </data>
+  <data name="email" xml:space="preserve">
+    <value>El. paštas</value>
+  </data>
+  <data name="message" xml:space="preserve">
+    <value>Ar esate &lt;strong&gt;tikras&lt;/strong&gt;, kad norite ištrinti? &lt;br /&gt; Tai ištrins visus susijusius objektus</value>
   </data>
 </root>

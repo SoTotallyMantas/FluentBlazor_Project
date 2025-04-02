@@ -5,16 +5,17 @@
 @using FluentBlazor_Project.HelperFunctions
 @using FluentBlazor_Project.Interface
 @inject IUserService _userService
+@inject IStringLocalizer<Resource> Localizer
 
 @if (user == null)
 {
-    <p>Loading category...</p>
+    <p>@Localizer["loadingUser"]</p>
 }
 else
 {
-    <h2>User @user.Name Editing</h2>
-    <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="user.Name" Label="Change name:" Required />
-    <FluentTextArea Name="email" Rows="1" Cols="60" @bind-Value="user.Email" Label="Change email:" Required />
+    <h2>@(Localizer["user"] + " " + @user.Name + " " + Localizer["editing"])</h2>
+    <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="user.Name" Label="@Localizer["changeUsername"]" Required />
+    <FluentTextArea Name="email" Rows="1" Cols="60" @bind-Value="user.Email" Label="@Localizer["changeEmail"]" Required />
 
     <FluentSelect Items=@comboBoxOptions
     TOption="Option<string>"
@@ -24,8 +25,8 @@ else
     OptionSelected="@(i => i.Selected)"
     @bind-SelectedOptions="@selectedOptions" />
 
-    <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" Style="width: 75px" onclick="@handleSave">Save</FluentButton>
-    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">Cancel</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" Style="width: 75px" onclick="@handleSave">@Localizer["save"]</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Style="width: 75px" onClick="@handelCancel">@Localizer["cancel"]</FluentButton>
 
 
 

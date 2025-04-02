@@ -13,16 +13,17 @@
 @using Microsoft.FluentUI.AspNetCore.Components.DataGrid
 @attribute [Authorize(Roles = "administrator")]
 @rendermode InteractiveServer
+@inject IStringLocalizer<Resource> Localizer
 
 <h2>Admin</h2>
 <FluentTabs style="margin-top: 5px;">
-    <FluentTab id="productTab" label="Product">
+    <FluentTab id="productTab" label="@Localizer["product2"]">
         <FluentDataGrid @ref="@productGrid" Items="@products.AsQueryable()" Pagination="@productPagination" MultiLine="true" Loading="false" >
 
-            <PropertyColumn Property="@(p => p.Name)" Title="Product Name" Sortable="true" />
-            <PropertyColumn Property="@(p => p.Category)" Title="Category Name" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Name)" Title="@Localizer["productName"]" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Category)" Title="@Localizer["category"]" Sortable="true" />
 
-            <TemplateColumn Title="Actions">
+            <TemplateColumn Title="@Localizer["actions"]">
                 <FluentButton Style="width: 60px; height: 40px;"
                 Appearance="Appearance.Accent"
                 IconEnd="@(new Icons.Regular.Size20.Pen())"
@@ -44,17 +45,17 @@
                       Title="Create New"
                       @onclick="CreateNewProduct">
 
-            Create New
+            @Localizer["createNew"]
 
          </FluentButton>
         <FluentPaginator State="@productPagination" />
     </FluentTab>
-    <FluentTab id="categoryTab" label="Category">
+    <FluentTab id="categoryTab" label="@Localizer["category2"]">
         <FluentDataGrid @ref="@categoriesGrid" Items="@categories.AsQueryable()" Pagination="@categoryPagination" MultiLine="true">
-            <PropertyColumn Property="@(c => c.CategoryName)" Title="Name" Sortable="true" />
-            <PropertyColumn Property="@(c => c.Title)" Title="Title" Sortable="true" />
-            <PropertyColumn Property="@(c => c.Description)" Title="Description" Sortable="true" />
-            <TemplateColumn Title="Actions">
+            <PropertyColumn Property="@(c => c.CategoryName)" Title="@Localizer["name"]" Sortable="true" />
+            <PropertyColumn Property="@(c => c.Title)" Title="@Localizer["title"]" Sortable="true" />
+            <PropertyColumn Property="@(c => c.Description)" Title="@Localizer["tabDescription"]" Sortable="true" />
+            <TemplateColumn Title="@Localizer["actions"]">
                 <FluentButton Style="width: 60px; height: 40px;"
                 Appearance="Appearance.Accent"
                 IconEnd="@(new Icons.Regular.Size20.Pen())"
@@ -75,17 +76,17 @@
                       IconEnd="@(new Icons.Regular.Size20.Pen())"
                       @onclick="CreateNewCategory">
 
-            Create New
+            @Localizer["createNew"]
 
          </FluentButton>
         <FluentPaginator State="@categoryPagination" />
     </FluentTab>
 
-    <FluentTab id="userTab" label="Users">
+    <FluentTab id="userTab" label="@Localizer["user2"]">
         <FluentDataGrid @ref="@userGrid" Items="@userDisplays.AsQueryable()" Pagination="@userPagination" MultiLine="true">
-            <PropertyColumn Property="@(u => u.Name)" Title="Name" Sortable="true" />
-            <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" />
-            <TemplateColumn Title="Actions">
+            <PropertyColumn Property="@(u => u.Name)" Title="@Localizer["name"]" Sortable="true" />
+            <PropertyColumn Property="@(u => u.Email)" Title="@Localizer["email"]" Sortable="true" />
+            <TemplateColumn Title="@Localizer["actions"]">
                 <FluentButton Style="width: 60px; height: 40px;"
                 Appearance="Appearance.Accent"
                 IconEnd="@(new Icons.Regular.Size20.Pen())"
@@ -103,15 +104,15 @@
             // Hidden due to unfinished nature
             // no way to add password to created user
         }
-       @if(false){
-        <FluentButton Style="width: 60px; height: 40px;"
-                      Appearance="Appearance.Accent"
-                      IconEnd="@(new Icons.Regular.Size20.Pen())"
-                      @onclick="CreateNewUser">
+        @if(false){
+            <FluentButton Style="width: 60px; height: 40px;"
+            Appearance="Appearance.Accent"
+            IconEnd="@(new Icons.Regular.Size20.Pen())"
+            @onclick="CreateNewUser">
 
-            Create New
+                @Localizer["createNew"]
 
-         </FluentButton>
+            </FluentButton>
         }
         <FluentPaginator State="@userPagination" />
     </FluentTab>
@@ -148,7 +149,7 @@
             await userGrid.RefreshDataAsync();
             this.StateHasChanged();
         }
-       
+
         dialogRejected = false;
     }
     private async void DeleteCategory(Guid categoryId)
@@ -165,7 +166,7 @@
             await categoriesGrid.RefreshDataAsync();
             this.StateHasChanged();
         }
-       
+
         dialogRejected = false;
     }
     private async void DeleteProduct(Guid productId)
@@ -208,10 +209,11 @@
     {
         Navigation.NavigateTo($"/createUser/");
     }
-    
+
     private async Task ShowConfirmationAsync()
     {
-        var dialog = await DialogService.ShowConfirmationAsync("Are you <strong>sure</strong> you want to delete this item? <br /><br />This will also remove any linked items");
+        var message = Localizer["message"];
+        var dialog = await DialogService.ShowConfirmationAsync(message);
         var result = await dialog.Result;
         dialogRejected = result.Cancelled;
     }

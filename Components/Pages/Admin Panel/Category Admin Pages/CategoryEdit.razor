@@ -12,7 +12,7 @@
 }
 else
 {
-    <h2>@(Localizer["category2"] + category.CategoryName + Localizer["editing"])</h2>
+    <h2>@(Localizer["category2"] + " " + category.CategoryName + " " + Localizer["editing"])</h2>
     <FluentTextArea Name="name" Rows="1" Cols="60" @bind-Value="category.CategoryName" Label=@Localizer["changeName"] Required/>
     <FluentTextArea Name="title" Rows="1" Cols="60" @bind-Value="category.Title" Label=@Localizer["changeTitle"] />
     <FluentTextArea Name="description" Rows="1" Cols="60" @bind-Value="category.Description" Label=@Localizer["changeDescription"] />
